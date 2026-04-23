@@ -236,7 +236,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
     : 0;
 
   return (
-    <div id="results" style={{ background: PAGE_BG, borderRadius: 24, overflow: 'hidden', fontFamily: FONT }}>
+    <div id="results" style={{ background: CARD, borderRadius: 24, overflow: 'hidden', fontFamily: FONT, border: CARD_BORDER, boxShadow: CARD_SHADOW }}>
       {/* B1 — Sticky Header */}
       <div
         style={{
@@ -279,7 +279,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
         {/* B2 — Hero */}
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <img src={champLogo} alt="Champion Health, Inc." style={{ maxHeight: 96, margin: '0 auto' }} />
-          <h1 style={{ fontWeight: 800, fontSize: 36, letterSpacing: '-0.02em', color: ON_DARK, marginTop: 24 }}>
+          <h1 style={{ fontWeight: 800, fontSize: 36, letterSpacing: '-0.02em', color: INK, marginTop: 24 }}>
             Your Customized CHAMP Proposal
           </h1>
           <div style={{ width: 120, height: 2, background: ACCENT, margin: '12px auto 0' }} />
@@ -320,20 +320,19 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B4 — Key Benefits */}
         <div style={{ marginTop: 56, textAlign: 'center' }}>
-          <h2 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', color: ON_DARK }}>Key Benefits</h2>
+          <h2 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', color: INK }}>Key Benefits</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
             {KEY_BENEFITS.map((b) => (
               <span
                 key={b}
                 style={{
-                  background: CARD,
-                  border: `1px solid rgba(59, 130, 246, 0.2)`,
+                  background: '#F7F8FC',
+                  border: '1px solid rgba(15, 11, 46, 0.08)',
                   borderRadius: PILL,
                   padding: '10px 20px',
                   fontSize: 14,
                   fontWeight: 500,
                   color: INK,
-                  boxShadow: CARD_SHADOW,
                 }}
               >
                 {b}
@@ -456,7 +455,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B8 — Value Proposition */}
         <div style={{ marginTop: 56, textAlign: 'center' }}>
-          <h2 style={{ fontWeight: 800, fontSize: 24, letterSpacing: '-0.02em', color: ON_DARK }}>Value Proposition</h2>
+          <h2 style={{ fontWeight: 800, fontSize: 24, letterSpacing: '-0.02em', color: INK }}>Value Proposition</h2>
           <div
             style={{
               display: 'grid',
@@ -470,9 +469,8 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
               <div
                 key={i}
                 style={{
-                  background: CARD,
-                  border: CARD_BORDER,
-                  boxShadow: CARD_SHADOW,
+                  background: '#F7F8FC',
+                  border: '1px solid rgba(15, 11, 46, 0.08)',
                   borderRadius: 16,
                   padding: 24,
                 }}
@@ -505,7 +503,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B9 — FAQ */}
         <div style={{ marginTop: 56 }}>
-          <h2 style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', color: ON_DARK, textAlign: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', color: INK, textAlign: 'center', marginBottom: 24 }}>
             Frequently Asked Questions
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -513,9 +511,8 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
               <div
                 key={i}
                 style={{
-                  background: CARD,
-                  border: CARD_BORDER,
-                  boxShadow: CARD_SHADOW,
+                  background: '#F7F8FC',
+                  border: '1px solid rgba(15, 11, 46, 0.08)',
                   borderRadius: 12,
                   overflow: 'hidden',
                 }}
@@ -615,11 +612,9 @@ function KPICard({ label, value, caption }: { label: string; value: string; capt
   return (
     <div
       style={{
-        background: CARD,
-        border: CARD_BORDER,
-        boxShadow: CARD_SHADOW,
+        background: '#F7F8FC',
+        border: '1px solid rgba(15, 11, 46, 0.08)',
         borderRadius: 16,
-        borderLeft: `4px solid ${ACCENT}`,
         padding: '28px 24px',
         textAlign: 'center',
         display: 'flex',
@@ -638,9 +633,8 @@ function WhiteCard({ children, style }: { children: React.ReactNode; style?: Rea
   return (
     <div
       style={{
-        background: CARD,
-        border: CARD_BORDER,
-        boxShadow: CARD_SHADOW,
+        background: '#F7F8FC',
+        border: '1px solid rgba(15, 11, 46, 0.08)',
         borderRadius: 16,
         padding: 32,
         ...style,
