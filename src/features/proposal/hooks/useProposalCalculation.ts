@@ -11,7 +11,7 @@ export function useProposalCalculation() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const runCalculation = useCallback(() => {
-    const { company, states, filingStatus, tiers, socialSecurity, benefits } = useProposalStore.getState();
+    const { company, states, filingStatus, tiers, benefits } = useProposalStore.getState();
 
     if (!company.employeeCount || tiers.length === 0 || states.length === 0) {
       useProposalStore.getState().setResult(null);
@@ -40,8 +40,8 @@ export function useProposalCalculation() {
       let hsaAnnual = 0;
 
       if (benefits.enabled) {
-        if (benefits.health.enabled) {
-          const avgPremium = (benefits.health.premiums.medical.individual + benefits.health.premiums.medical.family) / 2;
+        if (benefits.healthcare.enabled) {
+          const avgPremium = (benefits.healthcare.premiums.medical.individual + benefits.healthcare.premiums.medical.family) / 2;
           healthPremiumAnnual = avgPremium * 12;
         }
         if (benefits.retirement.enabled) {
@@ -53,7 +53,7 @@ export function useProposalCalculation() {
       }
 
       const preTaxDeduction = estimatePreTaxDeductions(avgSalary, tier.level, {
-        healthParticipation: benefits.enabled && benefits.health.enabled ? benefits.health.participationRate : 0,
+        healthParticipation: benefits.enabled && benefits.healthcare.enabled ? benefits.healthcare.participationRate : 0,
         healthPremiumAnnual,
         retirementParticipation: benefits.enabled && benefits.retirement.enabled ? benefits.retirement.participationRate : 0,
         retirementRate,
@@ -68,7 +68,6 @@ export function useProposalCalculation() {
         stateDistribution,
         filingStatus,
         preTaxDeduction,
-        socialSecurity.exemptPercent,
       );
 
       tierResults.push({
@@ -117,7 +116,6 @@ export function useProposalCalculation() {
     store.states,
     store.filingStatus,
     store.tiers,
-    store.socialSecurity,
     store.benefits,
     runCalculation,
   ]);

@@ -1,58 +1,102 @@
-import { useState, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Loader2, Info, Download } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ShieldCheck,
+  ChevronDown,
+  CheckCircle2,
+  Download,
+  Plus,
+  Minus,
+} from 'lucide-react';
 import { useProposalStore } from '@/features/proposal/store/proposal.store';
 import { usePDFGeneration } from '@/features/proposal/hooks/usePDFGeneration';
-import { useProposalPersistence } from '@/features/proposal/hooks/useProposalPersistence';
-import { PaycheckComparison } from '@/features/informed-analysis/components/PaycheckComparison';
-import { ImplementationTimeline } from '@/features/proposal/components/results/ImplementationTimeline';
-import { FAQAccordion } from '@/features/proposal/components/results/FAQAccordion';
-import { DisclaimerCard } from '@/features/proposal/components/results/DisclaimerCard';
-import { StickyActionBar } from '@/features/proposal/components/results/StickyActionBar';
-import { Toast } from '@/features/proposal/components/shared/Toast';
-import { payPeriodsPerYear, formatDollar, formatDollarCents } from '@/utils/format';
+import { formatDollar, formatDollarCents, payPeriodsPerYear } from '@/utils/format';
 import { getFederalMarginalRate } from '@/features/proposal/engine';
 import { STATE_TAX_RATES } from '@/config/tax-rates';
-import { FICA_RATES, ADMIN_FEE_PER_EMPLOYEE_PER_MONTH } from '@/config/fica-rates';
-import type { PaycheckComparison as PaycheckComparisonType, TierResult } from '@/features/proposal/types/proposal.types';
+import { FICA_RATES, ADMIN_FEE_ANNUAL } from '@/config/fica-rates';
+import type { TierResult } from '@/features/proposal/types/proposal.types';
+import champLogoWhite from '@/assets/champ-logo-white.svg';
 
-const DISCLAIMER_TEXT = 'This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Actual results may vary based on final enrollment, payroll data, and plan configuration.';
+const ACCENT = '#5ECEB0';
+const BG = '#0B1220';
+const CARD_BG = 'rgba(255,255,255,0.04)';
+const CARD_BORDER = '1px solid rgba(255,255,255,0.08)';
+const MUTED = 'rgba(255,255,255,0.55)';
+const DISCLAIMER_TEXT =
+  'This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Calculations apply the full standard FICA rate (6.2% Social Security + 1.45% Medicare) and 2026 federal tax tables. Actual results may vary based on final enrollment, payroll data, and plan configuration.';
+
+const KEY_BENEFITS = [
+  'Data-Driven Oversight',
+  'Reduced HR Burden',
+  'Compliance Confidence',
+  'Payroll Tax Savings',
+  'Improved Productivity',
+  'Potential Claims Reduction',
+  'Lower Renewal Rates',
+  'Employee Retention',
+  'Automated Administration',
+];
+
+const VALUE_PROPS = [
+  { title: 'Cash Indemnity', body: 'Provide cash benefits that offset high deductibles and out-of-pocket expenses.' },
+  { title: 'Tax Savings', body: 'Create capital for reinvestment\u2014turn employee benefits into measurable company savings.' },
+  { title: 'Health & Wellbeing', body: 'Deliver next-gen programs that enhance employee health, happiness, and family wellness.' },
+  { title: 'Plan Unlock', body: 'Empower employees to understand and navigate their major medical plan\u2014driving smarter utilization and fewer unnecessary claims.' },
+  { title: 'Plan Clarity', body: 'Finally\u2014a tool that explains major-medical benefits in plain English and guides smarter care decisions.' },
+  { title: 'Payroll Optimization', body: 'Reduce corporate payroll and potentially lower workers\u2019 comp premiums through strategic plan design.' },
+  { title: 'Hospital Savings', body: 'Unlock access to free or discounted hospital care under 501(r) programs\u2014reducing member bills and employer claim costs.' },
+  { title: 'Zero-Cost Care', body: 'Eliminate unnecessary claims with $0-cost virtual care and prescriptions\u2014driving down medical utilization and helping stabilize future renewal premiums.' },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: 'How do employees benefit?',
+    a: 'Eligible employees see an increase in take-home pay because their taxable income is reduced, lowering their federal income, Social Security, and Medicare taxes.',
+  },
+  {
+    q: 'How does the employer benefit?',
+    a: 'Employers save on FICA taxes (Social Security and Medicare) for every dollar that employees contribute pre-tax. This can result in significant payroll tax savings.',
+  },
+  {
+    q: 'Who is qualified to participate?',
+    a: 'Qualification is typically determined by factors such as filing status, income level, and number of dependents. Eligible employees are those who qualify and also would see a positive impact on their net pay.',
+  },
+  {
+    q: 'How long does implementation take?',
+    a: 'The entire process typically takes 2-3 weeks from initial setup to full implementation, with minimal disruption to your operations.',
+  },
+];
 
 interface ResultsSectionProps {
   groupId: string;
 }
 
-interface TierPaycheckData {
+interface TierPaycheckProfile {
   tierResult: TierResult;
+  annualSalary: number;
+  filingStatus: string;
+  dependents: number;
+  stateCode: string;
   grossPayPerPeriod: number;
-  preNetPerPeriod: number;
-  postNetPerPeriod: number;
-  employeeNetChange: number;
-  employeeNetChangeMonthly: number;
-  employerSavingsPerPeriod: number;
-  employerSavingsPerMonth: number;
-  isPositive: boolean;
+  preTaxPerPeriod: number;
+  fedBefore: number;
+  stateBefore: number;
+  ficaBefore: number;
+  netBefore: number;
+  fedAfter: number;
+  stateAfter: number;
+  ficaAfter: number;
+  champBenefit: number;
+  netAfter: number;
+  delta: number;
+  deltaPercent: number;
+  annualIncrease: number;
+  totalTaxSavings: number;
 }
 
-export function ResultsSection({ groupId }: ResultsSectionProps) {
-  const { result, isCalculating, company, resetAll, states, filingStatus, tiers } = useProposalStore((s) => s);
+export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
+  const { result, isCalculating, company, states, filingStatus, tiers } = useProposalStore((s) => s);
   const { downloadPDF, isGenerating } = usePDFGeneration();
-  const { save, isSaving } = useProposalPersistence(groupId);
-  const [toastVisible, setToastVisible] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-
-  const handleSave = useCallback(async () => {
-    try {
-      await save();
-    } catch {
-      /* handled in hook */
-    }
-    const msg = company.name
-      ? `Proposal saved to ${company.name}'s portal profile`
-      : 'Proposal saved';
-    setToastMessage(msg);
-    setToastVisible(true);
-  }, [save, company.name]);
 
   const periods = result ? payPeriodsPerYear(company.payrollFrequency) : 26;
 
@@ -67,9 +111,19 @@ export function ResultsSection({ groupId }: ResultsSectionProps) {
     return states.reduce((s, st) => s + (STATE_TAX_RATES[st.stateCode] ?? 0) * (st.workforcePercent / 100), 0);
   }, [states]);
 
-  const tierPaycheckData = useMemo<TierPaycheckData[]>(() => {
-    if (!result || result.tierResults.length === 0) return [];
+  const primaryState = useMemo(() => {
+    if (states.length === 0) return 'TX';
+    return states.reduce((best, s) => (s.workforcePercent > best.workforcePercent ? s : best), states[0]).stateCode;
+  }, [states]);
 
+  const filingLabel = useMemo(() => {
+    if (weightedFiling === 'married') return 'Married Filing Jointly';
+    if (weightedFiling === 'hoh') return 'Head of Household';
+    return 'Single';
+  }, [weightedFiling]);
+
+  const tierProfiles = useMemo<TierPaycheckProfile[]>(() => {
+    if (!result || result.tierResults.length === 0) return [];
     return result.tierResults.map((tr) => {
       const grossPay = tr.avgSalary / periods;
       const preTaxPerPay = tr.avgPreTaxDeduction / periods;
@@ -85,479 +139,680 @@ export function ResultsSection({ groupId }: ResultsSectionProps) {
       const fedAfter = taxableAfter * federalRate;
       const stateAfter = taxableAfter * weightedStateRate;
       const ficaAfter = taxableAfter * ficaRate;
-      const netAfter = taxableAfter - fedAfter - stateAfter - ficaAfter;
+      const adminPerPay = ADMIN_FEE_ANNUAL / periods;
+      const champBenefit = preTaxPerPay - adminPerPay;
+      const netAfter = grossPay - preTaxPerPay - fedAfter - stateAfter - ficaAfter;
 
-      const increase = netAfter - netBefore;
+      const delta = netAfter - netBefore;
+      const deltaPercent = netBefore > 0 ? (delta / netBefore) * 100 : 0;
+      const fedSaved = fedBefore - fedAfter;
+      const stateSaved = stateBefore - stateAfter;
+      const ficaSaved = ficaBefore - ficaAfter;
+      const totalTaxSavings = (fedSaved + stateSaved + ficaSaved) * periods;
 
       return {
         tierResult: tr,
-        grossPayPerPeriod: Math.round(grossPay * 100) / 100,
-        preNetPerPeriod: Math.round(netBefore * 100) / 100,
-        postNetPerPeriod: Math.round(netAfter * 100) / 100,
-        employeeNetChange: Math.round(increase * 100) / 100,
-        employeeNetChangeMonthly: Math.round((increase * periods / 12) * 100) / 100,
-        employerSavingsPerPeriod: Math.round((tr.ficaSavingsPerEmployee / periods) * 100) / 100,
-        employerSavingsPerMonth: Math.round((tr.ficaSavingsPerEmployee / 12) * 100) / 100,
-        isPositive: increase > 0,
+        annualSalary: tr.avgSalary,
+        filingStatus: filingLabel,
+        dependents: weightedFiling === 'single' ? 0 : weightedFiling === 'hoh' ? 1 : 2,
+        stateCode: primaryState,
+        grossPayPerPeriod: round2(grossPay),
+        preTaxPerPeriod: round2(preTaxPerPay),
+        fedBefore: round2(fedBefore),
+        stateBefore: round2(stateBefore),
+        ficaBefore: round2(ficaBefore),
+        netBefore: round2(netBefore),
+        fedAfter: round2(fedAfter),
+        stateAfter: round2(stateAfter),
+        ficaAfter: round2(ficaAfter),
+        champBenefit: round2(champBenefit),
+        netAfter: round2(netAfter),
+        delta: round2(delta),
+        deltaPercent: Math.round(deltaPercent * 100) / 100,
+        annualIncrease: round2(delta * periods),
+        totalTaxSavings: round2(totalTaxSavings),
       };
     });
-  }, [result, periods, weightedFiling, weightedStateRate]);
+  }, [result, periods, weightedFiling, weightedStateRate, primaryState, filingLabel]);
 
-  const avgPaycheckComparison = useMemo<PaycheckComparisonType | undefined>(() => {
-    if (!result || result.tierResults.length === 0) return undefined;
-    const totalWeight = tiers.reduce((s, t) => s + t.workforcePercent, 0);
-    if (totalWeight === 0) return undefined;
+  const benefittingProfile = useMemo(() => {
+    if (tierProfiles.length < 2) return tierProfiles[0] ?? null;
+    return tierProfiles[1];
+  }, [tierProfiles]);
 
-    const weightedSalary = tiers.reduce((s, t, i) => {
-      const tierResult = result.tierResults[i];
-      return s + (tierResult ? tierResult.avgSalary : 0) * (t.workforcePercent / totalWeight);
-    }, 0);
-    const weightedPreTax = tiers.reduce((s, t, i) => {
-      const tierResult = result.tierResults[i];
-      return s + (tierResult ? tierResult.avgPreTaxDeduction : 0) * (t.workforcePercent / totalWeight);
-    }, 0);
+  const nonBenefittingProfile = useMemo(() => {
+    const negative = tierProfiles.filter((p) => p.delta < 0);
+    if (negative.length === 0) return null;
+    return negative.reduce((worst, p) => (p.delta < worst.delta ? p : worst), negative[0]);
+  }, [tierProfiles]);
 
-    const grossPay = weightedSalary / periods;
-    const preTaxPerPay = weightedPreTax / periods;
-    const federalRate = getFederalMarginalRate(weightedSalary, weightedFiling);
-    const ficaRate = FICA_RATES.combined;
+  const [paycheckOpen, setPaycheckOpen] = useState(true);
+  const [detailedOpen, setDetailedOpen] = useState(false);
+  const [activePaycheckTab, setActivePaycheckTab] = useState<'benefitting' | 'non-benefitting'>('benefitting');
+  const [faqOpen, setFaqOpen] = useState<number | null>(null);
 
-    const fedBefore = grossPay * federalRate;
-    const stateBefore = grossPay * weightedStateRate;
-    const ficaBefore = grossPay * ficaRate;
-    const netBefore = grossPay - fedBefore - stateBefore - ficaBefore;
-
-    const taxableAfter = grossPay - preTaxPerPay;
-    const fedAfter = taxableAfter * federalRate;
-    const stateAfter = taxableAfter * weightedStateRate;
-    const ficaAfter = taxableAfter * ficaRate;
-    const netAfter = taxableAfter - fedAfter - stateAfter - ficaAfter;
-
-    const increase = netAfter - netBefore;
-
-    return {
-      tier: 'Average Employee',
-      grossPay: Math.round(grossPay * 100) / 100,
-      before: {
-        federalTax: Math.round(fedBefore * 100) / 100,
-        stateTax: Math.round(stateBefore * 100) / 100,
-        fica: Math.round(ficaBefore * 100) / 100,
-        postTaxDeductions: 0,
-        netPay: Math.round(netBefore * 100) / 100,
-      },
-      withPlan: {
-        preTaxDeduction: Math.round(preTaxPerPay * 100) / 100,
-        federalTax: Math.round(fedAfter * 100) / 100,
-        stateTax: Math.round(stateAfter * 100) / 100,
-        fica: Math.round(ficaAfter * 100) / 100,
-        postTaxDeductions: 0,
-        netPay: Math.round(netAfter * 100) / 100,
-      },
-      perPaycheckIncrease: Math.round(increase * 100) / 100,
-      annualIncrease: Math.round(increase * periods * 100) / 100,
-    };
-  }, [result, periods, weightedFiling, weightedStateRate, tiers]);
+  const handleDownloadPDF = useCallback(async () => {
+    await downloadPDF();
+  }, [downloadPDF]);
 
   if (isCalculating) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-5 w-5 animate-spin text-accent" />
-        <span className="ml-2 text-[14px] text-text-secondary">Calculating savings...</span>
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: ACCENT, borderTopColor: 'transparent' }} />
+        <span className="ml-2 text-[14px]" style={{ color: MUTED }}>Calculating savings...</span>
       </div>
     );
   }
 
   if (!result) {
     return (
-      <div id="results" className="glass-secondary !border-dashed !border-border-glass-light p-12 text-center">
-        <p className="text-[14px] text-text-tertiary">
+      <div id="results" className="p-12 text-center rounded-2xl" style={{ background: CARD_BG, border: CARD_BORDER, backdropFilter: 'blur(12px)' }}>
+        <p className="text-[14px]" style={{ color: MUTED }}>
           Complete the sections above to see your savings projection.
         </p>
       </div>
     );
   }
 
-  const netPayReducedCount = result.qualifiedEmployees - result.positivelyImpactedCount;
-  const totalPositiveEmployeeSavings = result.avgEmployeeAnnualSavings * result.positivelyImpactedCount;
-  const avgPreTax = result.tierResults.length > 0
-    ? result.tierResults.reduce((s: number, t) => s + t.avgPreTaxDeduction * t.employeeCount, 0) / result.totalEmployees
+  const participationRate = result.totalEmployees > 0
+    ? Math.round((result.positivelyImpactedCount / result.totalEmployees) * 100)
     : 0;
-  const avgPreTaxMonthly = avgPreTax / 12;
-  const adminFeeMonthly = ADMIN_FEE_PER_EMPLOYEE_PER_MONTH;
-  const totalMonthlyACH = avgPreTaxMonthly + adminFeeMonthly;
-  const payCycleLabel = company.payrollFrequency === 'weekly' ? 'Weekly' : company.payrollFrequency === 'biweekly' ? 'Bi-weekly' : company.payrollFrequency === 'semimonthly' ? 'Semi-monthly' : 'Monthly';
+  const perEmployeeBenefit = result.positivelyImpactedCount > 0
+    ? Math.round(result.avgEmployeeAnnualSavings)
+    : 0;
 
   return (
-    <>
-      <motion.div id="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5" style={{ paddingBottom: 72 }}>
-        {/* Disclaimer Banner */}
-        <div
-          className="flex items-center gap-2 rounded-lg px-4 py-2.5"
-          style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.15)' }}
-        >
-          <Info size={15} className="flex-shrink-0 text-accent" style={{ opacity: 0.7 }} />
-          <p className="text-[12px] leading-snug text-text-tertiary">{DISCLAIMER_TEXT}</p>
+    <div id="results" style={{ background: BG, borderRadius: 24, overflow: 'hidden', fontFamily: '"Inter", sans-serif' }}>
+      {/* B1 — Sticky Header */}
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          height: 72,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 32px',
+          background: 'rgba(11, 18, 32, 0.85)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <ShieldCheck size={22} style={{ color: ACCENT }} />
+          <span style={{ fontWeight: 600, fontSize: 18, color: '#fff' }}>The CHAMP Plan</span>
         </div>
-
-        {/* ═══════════════════════════════════════════════
-            SECTION 1 — CONGRATULATIONS HEADER
-        ═══════════════════════════════════════════════ */}
-        <div
-          className="overflow-hidden rounded-[18px]"
+        <button
           style={{
-            background: 'linear-gradient(135deg, #2E8BE8 0%, #1E5A9E 100%)',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
+            background: ACCENT,
+            color: BG,
+            borderRadius: 8,
+            padding: '8px 20px',
+            fontWeight: 600,
+            fontSize: 14,
+            border: 'none',
+            cursor: 'pointer',
           }}
         >
-          <div className="px-8 py-10">
-            <p className="text-[13px] font-semibold uppercase tracking-[0.15em] text-white" style={{ opacity: 0.8 }}>
-              Section 125 Cafeteria Plan
-            </p>
-            <h1 className="mt-3 text-[32px] font-bold leading-tight text-white">
-              Congratulations {company.name || 'Your Company'}!
-              <br />
-              <span style={{ color: '#F7F8FC' }}>Your Customized Proposal is Ready</span>
-            </h1>
-            <p className="mt-3 text-[14px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
-              Prepared {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} &middot; {payCycleLabel} Pay Cycle
-            </p>
-          </div>
-        </div>
+          Contact Us
+        </button>
+      </div>
 
-        {/* ═══════════════════════════════════════════════
-            SECTION 2 — SUMMARY STAT CARDS (top row)
-        ═══════════════════════════════════════════════ */}
-        <div className="glass-primary !p-0 overflow-hidden">
-          {/* Total Employees — full-width */}
-          <div className="text-center py-5 px-6" style={{ borderBottom: '1px solid rgba(15, 11, 46, 0.08)' }}>
-            <p className="font-mono text-[36px] font-bold text-text-primary">{result.totalEmployees}</p>
-            <p className="mt-1 text-[13px] font-medium text-text-secondary">Total Employees</p>
-          </div>
-
-          {/* 3-column stat row */}
-          <div className="grid grid-cols-3">
-            <div className="text-center py-5 px-4" style={{ borderRight: '1px solid rgba(15, 11, 46, 0.08)' }}>
-              <p className="font-mono text-[28px] font-bold text-success">{result.positivelyImpactedCount}</p>
-              <p className="mt-1 text-[12px] text-text-secondary">
-                Net Pay <strong className="text-success">Increased</strong> Employees
-              </p>
-            </div>
-            <div className="text-center py-5 px-4" style={{ borderRight: '1px solid rgba(15, 11, 46, 0.08)' }}>
-              <p className="font-mono text-[28px] font-bold text-text-secondary">{netPayReducedCount > 0 ? netPayReducedCount : 0}</p>
-              <p className="mt-1 text-[12px] text-text-secondary">
-                Net Pay <strong className="text-error">Reduced</strong> Employees
-              </p>
-            </div>
-            <div className="text-center py-5 px-4">
-              <p className="font-mono text-[28px] font-bold text-text-primary">{result.qualifiedEmployees}</p>
-              <p className="mt-1 text-[12px] text-text-secondary">Total Eligible Employees</p>
-            </div>
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════════════
-            SECTION 3 — POTENTIAL ANNUAL SAVINGS
-        ═══════════════════════════════════════════════ */}
-        <div className="glass-primary">
-          <h3 className="text-[18px] font-semibold text-text-primary mb-5">Potential Annual Savings</h3>
-
-          <div className="grid grid-cols-3 gap-4 mb-5">
-            <div
-              className="rounded-[14px] p-5 text-center"
-              style={{ background: 'rgba(59, 130, 246, 0.04)', border: '1px solid rgba(59, 130, 246, 0.15)' }}
-            >
-              <p className="font-mono text-[24px] font-bold text-accent">{formatDollar(result.employerAnnualFICASavings)}</p>
-              <p className="mt-2 text-[12px] font-medium text-text-secondary">
-                Net Employer Savings
-              </p>
-              <p className="text-[11px] text-text-tertiary">(Total Eligible Employees)</p>
-            </div>
-            <div
-              className="rounded-[14px] p-5 text-center"
-              style={{ background: '#F7F8FC', border: '1px solid rgba(15, 11, 46, 0.08)' }}
-            >
-              <p className="font-mono text-[24px] font-bold text-text-primary">{formatDollar(result.employerAnnualFICASavings / 12)}</p>
-              <p className="mt-2 text-[12px] font-medium text-text-secondary">
-                Monthly Employer Savings
-              </p>
-              <p className="text-[11px] text-text-tertiary">({formatDollar(result.employerAnnualFICASavings / 12 / result.totalEmployees)} per employee)</p>
-            </div>
-            <div
-              className="rounded-[14px] p-5 text-center"
-              style={{ background: 'rgba(5, 150, 105, 0.06)', border: '1px solid rgba(5, 150, 105, 0.15)' }}
-            >
-              <p className="font-mono text-[24px] font-bold text-success">{formatDollar(result.avgEmployeeAnnualSavings)}</p>
-              <p className="mt-2 text-[12px] font-medium text-text-secondary">
-                Avg. Employee Annual Pay Increase
-              </p>
-              <p className="text-[11px] text-text-tertiary">(Per eligible employee)</p>
-            </div>
-          </div>
-
-          {/* Aggregated bar */}
-          <div
-            className="rounded-[14px] py-5 px-6 text-center"
-            style={{ background: 'rgba(217, 119, 6, 0.05)', border: '1px solid rgba(217, 119, 6, 0.15)' }}
+      <div style={{ padding: '0 32px 48px', maxWidth: 1040, margin: '0 auto' }}>
+        {/* B2 — Hero */}
+        <div style={{ textAlign: 'center', marginTop: 48 }}>
+          <img src={champLogoWhite} alt="CHAMP" style={{ maxHeight: 96, margin: '0 auto' }} />
+          <h1 style={{ fontWeight: 700, fontSize: 36, color: '#fff', marginTop: 24 }}>
+            Your Customized CHAMP Proposal
+          </h1>
+          <div style={{ width: 120, height: 2, background: ACCENT, margin: '12px auto 0' }} />
+          <span
+            style={{
+              display: 'inline-block',
+              marginTop: 16,
+              background: ACCENT,
+              color: BG,
+              fontWeight: 600,
+              fontSize: 12,
+              padding: '4px 14px',
+              borderRadius: 999,
+            }}
           >
-            <p className="font-mono text-[28px] font-bold text-text-primary">{formatDollar(totalPositiveEmployeeSavings)}</p>
-            <p className="mt-1 text-[13px] text-text-secondary">
-              Aggregated Annual Employee Pay Increase <span className="text-text-tertiary">(Net Pay Increased Employees Only)</span>
-            </p>
-          </div>
+            AI-Generated
+          </span>
         </div>
 
-        {/* ═══════════════════════════════════════════════
-            SECTION 4 — TIER BREAKDOWN (Employee Breakdown style)
-        ═══════════════════════════════════════════════ */}
-        <div className="glass-primary overflow-hidden !p-0">
-          <div className="px-6 py-4">
-            <h3 className="text-[18px] font-semibold text-text-primary">Tier Breakdown</h3>
-            <p className="mt-0.5 text-[12px] text-text-tertiary">Estimated per-paycheck impact by salary tier</p>
-          </div>
-
-          {/* Table Header */}
-          <div
-            className="grid gap-4 px-6 py-2.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-text-tertiary"
-            style={{ background: '#F7F8FC', gridTemplateColumns: '1.5fr 1fr 1fr 1fr' }}
-          >
-            <div>Tier</div>
-            <div className="text-right">Avg. Gross Pay</div>
-            <div className="text-right">Pre-Plan Net</div>
-            <div className="text-right">Post-Plan Net</div>
-          </div>
-
-          {/* Table Rows */}
-          {tierPaycheckData.map((td, i) => (
-            <div
-              key={td.tierResult.tier}
-              className="grid gap-4 px-6 py-3.5 text-[14px] items-center"
-              style={{
-                background: i % 2 === 0 ? '#FFFFFF' : '#F7F8FC',
-                gridTemplateColumns: '1.5fr 1fr 1fr 1fr',
-              }}
-            >
-              <div>
-                <p className="font-semibold text-text-primary">{td.tierResult.tier}</p>
-                <p className="text-[11px] text-text-tertiary">{td.tierResult.employeeCount} employees</p>
-              </div>
-              <div className="text-right font-mono text-text-secondary">{formatDollarCents(td.grossPayPerPeriod)}</div>
-              <div className="text-right font-mono text-text-secondary">{formatDollarCents(td.preNetPerPeriod)}</div>
-              <div className="text-right">
-                <span
-                  className="inline-block rounded-full px-3 py-1 font-mono font-semibold text-[13px]"
-                  style={{
-                    background: td.isPositive ? 'rgba(5, 150, 105, 0.1)' : 'rgba(220, 38, 38, 0.08)',
-                    color: td.isPositive ? '#059669' : '#DC2626',
-                  }}
-                >
-                  {formatDollarCents(td.postNetPerPeriod)}
-                </span>
-              </div>
-            </div>
-          ))}
-
-          {/* Pagination-style footer */}
-          <div className="px-6 py-3 text-[12px] text-text-tertiary" style={{ borderTop: '1px solid rgba(15, 11, 46, 0.08)' }}>
-            Showing <strong className="text-text-secondary">1–{tierPaycheckData.length}</strong> of <strong className="text-text-secondary">{tierPaycheckData.length}</strong> tiers
-          </div>
+        {/* B3 — KPI Row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: 48 }}>
+          <KPICard
+            label="Anticipated Employee Participation Rate"
+            value={`${participationRate}%`}
+            caption="estimated voluntary participation among eligible employees based on internal modeling assumptions and historical participation patterns"
+          />
+          <KPICard
+            label="Annual Company Savings"
+            value={formatDollar(result.netAnnualBenefit)}
+            caption="estimated total employer payroll tax savings"
+          />
+          <KPICard
+            label="Per Employee Benefit"
+            value={formatDollar(perEmployeeBenefit)}
+            caption="average annual take-home pay increase per qualified employee"
+          />
         </div>
 
-        {/* ═══════════════════════════════════════════════
-            SECTION 5 — EMPLOYER BREAKDOWN
-        ═══════════════════════════════════════════════ */}
-        <div
-          className="overflow-hidden rounded-[18px]"
-          style={{ border: '1px solid rgba(59, 130, 246, 0.2)' }}
-        >
-          <div className="px-6 py-4" style={{ background: 'rgba(59, 130, 246, 0.03)' }}>
-            <h3 className="text-[18px] font-semibold text-text-primary">Employer Breakdown</h3>
-          </div>
-
-          {/* Table Header */}
-          <div
-            className="grid gap-3 px-6 py-2.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-text-tertiary"
-            style={{ background: '#F7F8FC', gridTemplateColumns: '1.3fr 1fr 1fr 1fr 1fr' }}
-          >
-            <div>Tier</div>
-            <div className="text-right">Employee Net Take Home Pay Change</div>
-            <div className="text-right">Employee Net Take Home Pay Change Per Month</div>
-            <div className="text-right">Employer Net Savings Per Pay Period</div>
-            <div className="text-right">Employer Net Savings Per Month</div>
-          </div>
-
-          {/* Table Rows */}
-          {tierPaycheckData.map((td, i) => {
-            const changeColor = td.employeeNetChange > 0.01 ? 'text-success' : td.employeeNetChange < -0.01 ? 'text-error' : 'text-warning';
-            const changeBg = td.employeeNetChange > 0.01
-              ? 'rgba(5, 150, 105, 0.06)'
-              : td.employeeNetChange < -0.01
-                ? 'rgba(220, 38, 38, 0.06)'
-                : 'rgba(217, 119, 6, 0.06)';
-
-            return (
-              <div
-                key={td.tierResult.tier}
-                className="grid gap-3 px-6 py-3.5 text-[14px] items-center"
+        {/* B4 — Key Benefits */}
+        <div style={{ marginTop: 56, textAlign: 'center' }}>
+          <h2 style={{ fontWeight: 700, fontSize: 20, color: '#fff' }}>Key Benefits</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
+            {KEY_BENEFITS.map((b) => (
+              <span
+                key={b}
                 style={{
-                  background: i % 2 === 0 ? '#FFFFFF' : '#F7F8FC',
-                  gridTemplateColumns: '1.3fr 1fr 1fr 1fr 1fr',
+                  background: CARD_BG,
+                  border: `1px solid rgba(94, 206, 176, 0.2)`,
+                  backdropFilter: 'blur(12px)',
+                  borderRadius: 999,
+                  padding: '10px 20px',
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: '#fff',
                 }}
               >
-                <div className="font-semibold text-text-primary">{td.tierResult.tier}</div>
-                <div className="text-right font-mono" style={{ background: changeBg, borderRadius: 6, padding: '2px 8px' }}>
-                  <span className={changeColor}>{formatDollarCents(td.employeeNetChange)}</span>
-                </div>
-                <div className="text-right font-mono" style={{ background: changeBg, borderRadius: 6, padding: '2px 8px' }}>
-                  <span className={changeColor}>{formatDollarCents(td.employeeNetChangeMonthly)}</span>
-                </div>
-                <div className="text-right font-mono text-text-secondary">{formatDollarCents(td.employerSavingsPerPeriod)}</div>
-                <div className="text-right font-mono text-text-secondary">{formatDollarCents(td.employerSavingsPerMonth)}</div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* ═══════════════════════════════════════════════
-            SECTION 6 — PAYCHECK COMPARISON
-        ═══════════════════════════════════════════════ */}
-        {avgPaycheckComparison && (
-          <PaycheckComparison tiers={[avgPaycheckComparison]} payrollFrequency={payCycleLabel} />
-        )}
-
-        {/* ═══════════════════════════════════════════════
-            SECTION 7 — HOW THE MATH WORKS
-        ═══════════════════════════════════════════════ */}
-        <div
-          className="overflow-hidden rounded-[18px]"
-          style={{
-            background: '#FFFFFF',
-            border: '1px solid rgba(59, 130, 246, 0.15)',
-          }}
-        >
-          <div className="px-8 py-6">
-            <h3 className="text-[22px] font-bold text-text-primary mb-5">How the Math Works</h3>
-
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              {/* Left — explanation */}
-              <div className="text-[14px] leading-[1.8] text-text-secondary space-y-4">
-                <p>
-                  The Section 125 Cafeteria Plan works by converting eligible benefit premiums to pre-tax deductions
-                  from each employee&rsquo;s paycheck. This reduces the employee&rsquo;s taxable income, which in
-                  turn lowers their federal, state, and FICA tax withholdings.
-                </p>
-                <p>
-                  The employer also benefits from this arrangement because FICA taxes (7.65%) are calculated on
-                  taxable wages. When employee wages are reduced by pre-tax deductions, the employer&rsquo;s
-                  matching FICA obligation decreases proportionally.
-                </p>
-                <p>
-                  The plan generates a total payroll tax savings to the employer of{' '}
-                  <strong className="text-accent">{formatDollar(result.employerAnnualFICASavings / 12)}</strong>{' '}
-                  monthly ({formatDollar(avgPreTax * result.totalEmployees)} employee pre-tax &times; 7.65%).
-                </p>
-              </div>
-
-              {/* Right — math breakdown */}
-              <div className="flex flex-col items-center justify-center gap-3">
-                <MathBlock
-                  value={formatDollar(Math.round(avgPreTaxMonthly))}
-                  suffix="/ employee / month"
-                  label="Employee Pre-Tax Contribution"
-                  sublabel={`Average pre-tax deduction across all tiers`}
-                />
-                <span className="text-[20px] font-bold text-text-tertiary">+</span>
-                <MathBlock
-                  value={`$${adminFeeMonthly}`}
-                  suffix="/ employee / month"
-                  label="Employer Administration Fee"
-                />
-                <span className="text-[20px] font-bold text-text-tertiary">=</span>
-                <MathBlock
-                  value={formatDollar(Math.round(totalMonthlyACH))}
-                  suffix="/ employee / month"
-                  label={`Total Monthly Cost from ${company.name || 'Employer'}`}
-                  accent
-                />
-              </div>
-            </div>
+                {b}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════════
-            SECTION 8 — SAVINGS OUTLOOK (range)
-        ═══════════════════════════════════════════════ */}
-        <div className="glass-primary">
-          <h3 className="text-[18px] font-semibold text-text-primary mb-5">Savings Outlook</h3>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="glass-secondary text-center">
-              <p className="font-mono text-[18px] font-bold text-text-secondary">{formatDollar(result.savingsRange.conservative)}</p>
-              <p className="mt-1 text-[12px] text-text-tertiary">Conservative</p>
-              <p className="mt-0.5 text-[11px] text-text-tertiary">If participation is lower than expected</p>
-            </div>
-            <div className="glass-secondary text-center !border-accent-border" style={{ boxShadow: '0 0 24px rgba(59, 130, 246, 0.06)' }}>
-              <p className="font-mono text-[22px] font-bold text-accent">{formatDollar(result.savingsRange.projected)}</p>
-              <p className="mt-1 text-[12px] text-accent-muted">Projected Savings</p>
-              <p className="mt-0.5 text-[11px] text-text-tertiary">Based on your inputs</p>
-            </div>
-            <div className="glass-secondary text-center">
-              <p className="font-mono text-[18px] font-bold text-secondary">{formatDollar(result.savingsRange.optimal)}</p>
-              <p className="mt-1 text-[12px] text-text-tertiary">Optimal</p>
-              <p className="mt-0.5 text-[11px] text-text-tertiary">With maximum enrollment</p>
-            </div>
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════════════
-            SECTION 9+ — IMPLEMENTATION, FAQ, DISCLAIMERS
-        ═══════════════════════════════════════════════ */}
-        <ImplementationTimeline />
-        <FAQAccordion />
-        <DisclaimerCard />
-
-        {/* Tax note */}
-        <div className="glass-secondary">
-          <p className="text-[12px] leading-[1.6] text-text-tertiary">
-            Tax calculations in this proposal are based on 2026 federal and state tax rates and may be subject to change.
+        {/* B5 — How We Calculate */}
+        <GlassSection style={{ marginTop: 56 }}>
+          <h2 style={{ fontWeight: 700, fontSize: 22, color: '#fff', textAlign: 'center' }}>How We Calculate</h2>
+          <p style={{ fontSize: 15, lineHeight: 1.65, color: MUTED, textAlign: 'center', maxWidth: 820, margin: '16px auto 0' }}>
+            Our sample illustration tool combines industry-standard wages, national W-4 filing patterns, and average U.S. household statistics to create realistic employee populations by industry. With minimal inputs, we can quickly estimate a hypothetical assessment as to the feasibility of implementing the CHAMP plan. For accurate assessments a more detailed analysis needs to be provided.
           </p>
+        </GlassSection>
+
+        {/* B6 — Paycheck Comparison */}
+        <GlassSection style={{ marginTop: 32 }}>
+          <CollapsibleHeader title="Paycheck Comparison" open={paycheckOpen} onToggle={() => setPaycheckOpen(!paycheckOpen)} />
+          <AnimatePresence initial={false}>
+            {paycheckOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div style={{ marginTop: 20 }}>
+                  {/* Tab switcher */}
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+                    <PillTab
+                      label="Benefitting Employee Example"
+                      active={activePaycheckTab === 'benefitting'}
+                      onClick={() => setActivePaycheckTab('benefitting')}
+                    />
+                    <PillTab
+                      label="Non-Benefiting Employee Example"
+                      active={activePaycheckTab === 'non-benefitting'}
+                      onClick={() => setActivePaycheckTab('non-benefitting')}
+                    />
+                  </div>
+
+                  {activePaycheckTab === 'benefitting' && benefittingProfile && (
+                    <PaycheckTab profile={benefittingProfile} positive periods={periods} />
+                  )}
+
+                  {activePaycheckTab === 'non-benefitting' && (
+                    nonBenefittingProfile ? (
+                      <PaycheckTab profile={nonBenefittingProfile} positive={false} periods={periods} />
+                    ) : (
+                      <p style={{ color: MUTED, fontSize: 14, fontStyle: 'italic', textAlign: 'center', padding: '32px 0' }}>
+                        No employees are projected to see a net decrease under this plan configuration.
+                      </p>
+                    )
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </GlassSection>
+
+        {/* B7 — Detailed Analysis */}
+        <GlassSection style={{ marginTop: 32 }}>
+          <CollapsibleHeader title="Detailed Analysis" open={detailedOpen} onToggle={() => setDetailedOpen(!detailedOpen)} />
+          <AnimatePresence initial={false}>
+            {detailedOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 20 }}>
+                  {/* Employee Eligibility */}
+                  <div style={{ background: CARD_BG, border: CARD_BORDER, backdropFilter: 'blur(12px)', borderRadius: 16, padding: 24 }}>
+                    <h3 style={{ fontWeight: 600, fontSize: 18, color: '#fff', textAlign: 'center' }}>Employee Eligibility</h3>
+                    <div style={{ width: 60, height: 2, background: ACCENT, margin: '8px auto 20px' }} />
+                    <StatRow label="Total Eligible Employees" value={String(result.totalEmployees)} />
+                    <StatRow label="Eligible Employees" value={String(result.qualifiedEmployees)} />
+                    <StatRow label="Employees with positive net take-home pay" value={String(result.positivelyImpactedCount)} />
+                    <StatRow label="Participation rate of eligible employees" value={`${participationRate}%`} />
+                  </div>
+
+                  {/* Financial Impact */}
+                  <div style={{ background: CARD_BG, border: CARD_BORDER, backdropFilter: 'blur(12px)', borderRadius: 16, padding: 24 }}>
+                    <h3 style={{ fontWeight: 600, fontSize: 18, color: '#fff', textAlign: 'center' }}>Financial Impact</h3>
+                    <div style={{ width: 60, height: 2, background: ACCENT, margin: '8px auto 20px' }} />
+                    <StatRow label="Employer Annual Savings (Net of Fees):" value={formatDollar(result.netAnnualBenefit)} />
+                    <StatRow label="Monthly Per Employee:" value={formatDollar(Math.round(result.netAnnualBenefit / result.totalEmployees / 12))} />
+                  </div>
+                </div>
+
+                {/* Statistically Significant notice */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    marginTop: 20,
+                    padding: '14px 20px',
+                    background: CARD_BG,
+                    border: CARD_BORDER,
+                    backdropFilter: 'blur(12px)',
+                    borderRadius: 12,
+                  }}
+                >
+                  <CheckCircle2 size={20} style={{ color: ACCENT, flexShrink: 0 }} />
+                  <p style={{ fontSize: 14, color: '#fff' }}>
+                    <strong>Statistically Significant:</strong>{' '}
+                    <span style={{ color: MUTED }}>
+                      This analysis is based on a sample size of {result.totalEmployees} employees, which provides a statistically significant result.
+                    </span>
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </GlassSection>
+
+        {/* B8 — Value Proposition */}
+        <div style={{ marginTop: 56, textAlign: 'center' }}>
+          <h2 style={{ fontWeight: 700, fontSize: 24, color: '#fff' }}>Value Proposition</h2>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 20,
+              marginTop: 32,
+              textAlign: 'left',
+            }}
+          >
+            {VALUE_PROPS.map((vp, i) => (
+              <div
+                key={i}
+                style={{
+                  background: CARD_BG,
+                  border: CARD_BORDER,
+                  backdropFilter: 'blur(12px)',
+                  borderRadius: 16,
+                  padding: 24,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      background: ACCENT,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 700,
+                      fontSize: 16,
+                      color: BG,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                  <span style={{ fontWeight: 700, fontSize: 16, color: '#fff' }}>{vp.title}</span>
+                </div>
+                <p style={{ fontSize: 14, lineHeight: 1.5, color: MUTED, marginTop: 12 }}>{vp.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </motion.div>
 
-      <StickyActionBar
-        companyName={company.name}
-        proposalType="quick_proposal"
-        onDownloadPDF={downloadPDF}
-        onSaveDraft={handleSave}
-        onNewProposal={resetAll}
-        isGeneratingPDF={isGenerating}
-        isSaving={isSaving}
-        newProposalLabel="New Proposal"
-      />
+        {/* B9 — FAQ */}
+        <div style={{ marginTop: 56 }}>
+          <h2 style={{ fontWeight: 700, fontSize: 22, color: '#fff', textAlign: 'center', marginBottom: 24 }}>
+            Frequently Asked Questions
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {FAQ_ITEMS.map((item, i) => (
+              <div
+                key={i}
+                style={{
+                  background: CARD_BG,
+                  border: CARD_BORDER,
+                  backdropFilter: 'blur(12px)',
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                }}
+              >
+                <button
+                  onClick={() => setFaqOpen(faqOpen === i ? null : i)}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '16px 20px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <span style={{ fontWeight: 600, fontSize: 16, color: ACCENT }}>{item.q}</span>
+                  <motion.span animate={{ rotate: faqOpen === i ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown size={18} style={{ color: MUTED }} />
+                  </motion.span>
+                </button>
+                <AnimatePresence initial={false}>
+                  {faqOpen === i && (
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: 'auto' }}
+                      exit={{ height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <p style={{ padding: '0 20px 16px', fontSize: 15, lineHeight: 1.6, color: MUTED }}>
+                        {item.a}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      <Toast message={toastMessage} visible={toastVisible} onDismiss={() => setToastVisible(false)} />
-    </>
+        {/* B10 — CTA Block */}
+        <GlassSection style={{ marginTop: 56, textAlign: 'center' }}>
+          <h2 style={{ fontWeight: 700, fontSize: 24, color: ACCENT }}>
+            Ready to boost employee satisfaction and reduce tax liability?
+          </h2>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', marginTop: 12 }}>
+            Our dedicated team will guide you through every step of the implementation process.
+          </p>
+        </GlassSection>
+
+        {/* B11 — Disclaimer */}
+        <GlassSection style={{ marginTop: 32, textAlign: 'center' }}>
+          <h3 style={{ fontWeight: 700, fontSize: 18, color: '#fff' }}>Disclaimer</h3>
+          <p style={{ fontSize: 13, lineHeight: 1.6, color: MUTED, marginTop: 12 }}>
+            {DISCLAIMER_TEXT}
+          </p>
+        </GlassSection>
+
+        {/* B12 — Download Button */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
+          <button
+            onClick={handleDownloadPDF}
+            disabled={isGenerating}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              background: ACCENT,
+              color: BG,
+              fontWeight: 600,
+              fontSize: 16,
+              padding: '14px 32px',
+              borderRadius: 10,
+              border: 'none',
+              cursor: isGenerating ? 'wait' : 'pointer',
+              opacity: isGenerating ? 0.6 : 1,
+            }}
+          >
+            <Download size={18} />
+            {isGenerating ? 'Generating...' : 'Download Full Proposal'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
-function MathBlock({ value, suffix, label, sublabel, accent }: {
-  value: string;
-  suffix: string;
-  label: string;
-  sublabel?: string;
-  accent?: boolean;
-}) {
+/* ── Helper components ─────────────────────────────────────────── */
+
+function KPICard({ label, value, caption }: { label: string; value: string; caption: string }) {
   return (
     <div
-      className="w-full rounded-[14px] px-5 py-4"
       style={{
-        background: accent ? 'rgba(59, 130, 246, 0.05)' : '#F7F8FC',
-        border: accent ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid rgba(15, 11, 46, 0.08)',
+        background: CARD_BG,
+        border: CARD_BORDER,
+        backdropFilter: 'blur(12px)',
+        borderRadius: 16,
+        borderLeft: `4px solid ${ACCENT}`,
+        padding: '32px 24px',
+        textAlign: 'center',
       }}
     >
-      <p className={`font-mono text-[24px] font-bold ${accent ? 'text-accent' : 'text-text-primary'}`}>
-        {value} <span className="text-[13px] font-normal text-text-tertiary">{suffix}</span>
-      </p>
-      <p className={`mt-1 text-[13px] font-semibold ${accent ? 'text-accent-muted' : 'text-text-secondary'}`}>{label}</p>
-      {sublabel && <p className="mt-0.5 text-[11px] text-text-tertiary">{sublabel}</p>}
+      <p style={{ fontWeight: 600, fontSize: 16, color: '#fff' }}>{label}</p>
+      <p style={{ fontWeight: 700, fontSize: 56, color: '#fff', marginTop: 8, lineHeight: 1 }}>{value}</p>
+      <p style={{ fontSize: 13, color: MUTED, marginTop: 12, lineHeight: 1.5 }}>{caption}</p>
     </div>
   );
+}
+
+function GlassSection({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div
+      style={{
+        background: CARD_BG,
+        border: CARD_BORDER,
+        backdropFilter: 'blur(12px)',
+        borderRadius: 16,
+        padding: 32,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function CollapsibleHeader({ title, open, onToggle }: { title: string; open: boolean; onToggle: () => void }) {
+  return (
+    <button
+      onClick={onToggle}
+      style={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        padding: 0,
+      }}
+    >
+      <h2 style={{ fontWeight: 700, fontSize: 22, color: '#fff' }}>{title}</h2>
+      {open ? <Minus size={20} style={{ color: MUTED }} /> : <Plus size={20} style={{ color: MUTED }} />}
+    </button>
+  );
+}
+
+function PillTab({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '8px 20px',
+        borderRadius: 999,
+        fontWeight: 600,
+        fontSize: 14,
+        border: active ? 'none' : '1px solid rgba(255,255,255,0.15)',
+        background: active ? ACCENT : 'transparent',
+        color: active ? BG : MUTED,
+        cursor: 'pointer',
+        transition: 'all 200ms',
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function StatRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <span style={{ fontSize: 14, color: MUTED }}>{label}</span>
+      <span style={{ fontWeight: 700, fontSize: 18, color: '#fff' }}>{value}</span>
+    </div>
+  );
+}
+
+function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProfile; positive: boolean; periods: number }) {
+  const deltaColor = positive ? ACCENT : '#EF4444';
+  const sign = positive ? '+' : '';
+  const fedSaved = profile.fedBefore - profile.fedAfter;
+  const stateSaved = profile.stateBefore - profile.stateAfter;
+  const ficaSaved = profile.ficaBefore - profile.ficaAfter;
+  const totalTaxSavingsAnnual = (fedSaved + stateSaved + ficaSaved) * periods;
+  const increasePct = profile.netBefore > 0 ? ((profile.delta / profile.netBefore) * 100) : 0;
+
+  return (
+    <div>
+      {/* Employee Profile bar */}
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <h3 style={{ fontWeight: 600, fontSize: 16, color: '#fff' }}>Employee Profile</h3>
+        <div style={{ width: 60, height: 2, background: ACCENT, margin: '6px auto 16px' }} />
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
+          <ProfileStat label="Annual Salary" value={formatDollar(profile.annualSalary)} />
+          <ProfileStat label="Filing Status" value={profile.filingStatus} />
+          <ProfileStat label="Dependents" value={String(profile.dependents)} />
+          <ProfileStat label="State" value={profile.stateCode} />
+        </div>
+      </div>
+
+      {/* Two-column paycheck comparison */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        {/* Current Paycheck */}
+        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 20 }}>
+          <p style={{ fontWeight: 600, fontSize: 14, color: MUTED, marginBottom: 16 }}>Current Paycheck (Bi-weekly)</p>
+          <PaySection label="Earnings">
+            <PayRow label="Gross Pay" value={profile.grossPayPerPeriod} />
+          </PaySection>
+          <PaySection label="Deductions">
+            <PayRow label="Pre-Tax Deductions" value={0} />
+          </PaySection>
+          <PaySection label="Taxes">
+            <PayRow label="Federal Withholding" value={-profile.fedBefore} muted />
+            <PayRow label="State Withholding" value={-profile.stateBefore} muted />
+            <PayRow label="FICA (7.65%)" value={-profile.ficaBefore} muted />
+          </PaySection>
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '12px 0' }} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 700, fontSize: 14, color: '#fff' }}>Net Pay</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: '#fff', fontFamily: 'monospace' }}>{formatDollarCents(profile.netBefore)}</span>
+          </div>
+        </div>
+
+        {/* Paycheck with CHAMP */}
+        <div style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid rgba(94, 206, 176, 0.15)`, borderRadius: 12, padding: 20 }}>
+          <p style={{ fontWeight: 600, fontSize: 14, color: ACCENT, marginBottom: 16 }}>Paycheck with CHAMP</p>
+          <PaySection label="Earnings">
+            <PayRow label="Gross Pay" value={profile.grossPayPerPeriod} />
+          </PaySection>
+          <PaySection label="Deductions">
+            <PayRow label="Pre-Tax Benefit Deduction" value={-profile.preTaxPerPeriod} accent />
+          </PaySection>
+          <PaySection label="Taxes">
+            <PayRow label="Federal Withholding" value={-profile.fedAfter} muted />
+            <PayRow label="State Withholding" value={-profile.stateAfter} muted />
+            <PayRow label="FICA (7.65%)" value={-profile.ficaAfter} muted />
+          </PaySection>
+          <PaySection label="CHAMP Benefit" accent>
+            <PayRow label="CHAMP Benefit" value={profile.champBenefit} accent />
+          </PaySection>
+          <div style={{ height: 1, background: 'rgba(94, 206, 176, 0.2)', margin: '12px 0' }} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 700, fontSize: 14, color: '#fff' }}>Net Pay</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: '#fff', fontFamily: 'monospace' }}>{formatDollarCents(profile.netAfter)}</span>
+          </div>
+          <p style={{ fontSize: 13, fontWeight: 600, color: deltaColor, marginTop: 8, textAlign: 'right' }}>
+            {sign}{formatDollarCents(profile.delta)} ({sign}{Math.abs(profile.deltaPercent).toFixed(1)}%)
+          </p>
+        </div>
+      </div>
+
+      {/* Annual Impact Summary */}
+      <div style={{ textAlign: 'center', marginTop: 24 }}>
+        <h3 style={{ fontWeight: 600, fontSize: 16, color: '#fff' }}>Annual Impact Summary</h3>
+        <div style={{ width: 60, height: 2, background: ACCENT, margin: '6px auto 16px' }} />
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 48, flexWrap: 'wrap' }}>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: 22, color: '#fff', fontFamily: 'monospace' }}>
+              {formatDollarCents(profile.annualIncrease)}
+            </p>
+            <p style={{ fontSize: 12, color: MUTED }}>Annual Take-Home Increase</p>
+          </div>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: 22, color: '#fff', fontFamily: 'monospace' }}>
+              {formatDollarCents(totalTaxSavingsAnnual)}
+            </p>
+            <p style={{ fontSize: 12, color: MUTED }}>Total Tax Savings</p>
+          </div>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: 22, color: ACCENT, fontFamily: 'monospace' }}>
+              {sign}{Math.abs(increasePct).toFixed(1)}%
+            </p>
+            <p style={{ fontSize: 12, color: MUTED }}>Increase Percentage</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <p style={{ fontSize: 12, color: MUTED }}>{label}</p>
+      <p style={{ fontWeight: 600, fontSize: 15, color: '#fff', marginTop: 2 }}>{value}</p>
+    </div>
+  );
+}
+
+function PaySection({ label, children, accent }: { label: string; children: React.ReactNode; accent?: boolean }) {
+  return (
+    <div style={{ marginTop: 12 }}>
+      <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: accent ? ACCENT : MUTED, marginBottom: 4 }}>{label}</p>
+      {children}
+    </div>
+  );
+}
+
+function PayRow({ label, value, muted, accent }: { label: string; value: number; muted?: boolean; accent?: boolean }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
+      <span style={{ color: accent ? ACCENT : MUTED }}>{label}</span>
+      <span style={{ fontFamily: 'monospace', color: accent ? ACCENT : muted ? 'rgba(255,255,255,0.4)' : '#fff' }}>
+        {value < 0 ? `(${formatDollarCents(Math.abs(value))})` : formatDollarCents(value)}
+      </span>
+    </div>
+  );
+}
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
 }

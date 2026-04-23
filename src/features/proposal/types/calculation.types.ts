@@ -3,7 +3,6 @@ export interface FICAInput {
   stateCode: string;
   filingStatus: 'single' | 'married' | 'hoh';
   preTaxDeductions: number;
-  socialSecurityExempt: boolean;
   adminFeeAnnual: number;
 }
 
@@ -27,7 +26,6 @@ export interface TierCalculationInput {
   stateDistribution: { stateCode: string; percent: number }[];
   filingDistribution: { single: number; married: number; headOfHousehold: number };
   benefitsDeductionPerEmployee: number;
-  socialSecurityExemptPercent: number;
   adminFeeAnnual: number;
 }
 

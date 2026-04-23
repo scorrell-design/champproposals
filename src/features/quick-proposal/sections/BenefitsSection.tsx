@@ -1,46 +1,65 @@
 import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Info, RotateCcw } from 'lucide-react';
+import { Info, RotateCcw } from 'lucide-react';
 import { useProposalStore } from '@/features/proposal/store/proposal.store';
 import { SectionCard } from '@/features/proposal/components/shared/SectionCard';
+import { DollarInput } from '@/features/proposal/components/shared/DollarInput';
 import { PercentInput } from '@/features/proposal/components/shared/PercentInput';
 
-const BENEFIT_TABS = ['Medical', 'Dental', 'Vision', 'Retirement', 'HSA'] as const;
+const BENEFIT_TABS = ['Healthcare', 'Retirement', 'HSA'] as const;
 type BenefitTab = typeof BENEFIT_TABS[number];
 
-const EXEMPTION_ITEMS = [
-  'Certain public school teachers and state/local government employees',
-  'Some religious group members (with approved Form 4029)',
-  'Certain non-resident aliens on temporary visas',
-  'Student employees at their schools',
-];
-
-const DEFAULT_BENEFITS_VALUES = {
-  health: { participationRate: 75, premiums: { medical: { individual: 250, family: 650 }, dental: { individual: 35, family: 90 }, vision: { individual: 15, family: 35 } } },
-  dental: { participationRate: 65, premiums: { individual: 35, family: 90 } },
-  vision: { participationRate: 60, premiums: { individual: 15, family: 35 } },
-  retirement: { participationRate: 60, contributionRates: { entry: 4, mid: 6, senior: 8, executive: 10 } },
-  hsa: { participationRate: 30, annualContribution: 1500 },
-};
+const DISCLAIMER_TEXT = 'This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Calculations apply the full standard FICA rate (6.2% Social Security + 1.45% Medicare) and 2026 federal tax tables. Actual results may vary based on final enrollment, payroll data, and plan configuration.';
 
 export function BenefitsSection() {
-  const { socialSecurity, benefits, setSocialSecurity, setBenefits } = useProposalStore((s) => s);
-  const [activeTab, setActiveTab] = useState<BenefitTab>('Medical');
-  const [showExemptionInfo, setShowExemptionInfo] = useState(false);
-  const [showSocialSecurity, setShowSocialSecurity] = useState(false);
+  const { benefits, setBenefits } = useProposalStore((s) => s);
+  const [activeTab, setActiveTab] = useState<BenefitTab>('Healthcare');
 
   const handleResetToDefaults = useCallback(() => {
     setBenefits({
-      health: { ...benefits.health, participationRate: DEFAULT_BENEFITS_VALUES.health.participationRate, premiums: DEFAULT_BENEFITS_VALUES.health.premiums },
-      dental: { ...benefits.dental, participationRate: DEFAULT_BENEFITS_VALUES.dental.participationRate, premiums: DEFAULT_BENEFITS_VALUES.dental.premiums },
-      vision: { ...benefits.vision, participationRate: DEFAULT_BENEFITS_VALUES.vision.participationRate, premiums: DEFAULT_BENEFITS_VALUES.vision.premiums },
-      retirement: { ...benefits.retirement, participationRate: DEFAULT_BENEFITS_VALUES.retirement.participationRate, contributionRates: DEFAULT_BENEFITS_VALUES.retirement.contributionRates },
-      hsa: { ...benefits.hsa, participationRate: DEFAULT_BENEFITS_VALUES.hsa.participationRate },
+      healthcare: {
+        ...benefits.healthcare,
+        participationRate: 75,
+        premiums: {
+          medical: { individual: 200, family: 775 },
+          dental: { individual: 35, family: 85 },
+          vision: { individual: 15, family: 40 },
+        },
+      },
+      retirement: {
+        ...benefits.retirement,
+        participationRate: 60,
+        contributionRates: { entry: 4, mid: 6, senior: 8, executive: 10 },
+      },
+      hsa: { ...benefits.hsa, participationRate: 30 },
     });
   }, [benefits, setBenefits]);
 
+  const updatePremium = useCallback(
+    (type: 'medical' | 'dental' | 'vision', tier: 'individual' | 'family', val: number) => {
+      setBenefits({
+        healthcare: {
+          ...benefits.healthcare,
+          premiums: {
+            ...benefits.healthcare.premiums,
+            [type]: { ...benefits.healthcare.premiums[type], [tier]: val },
+          },
+        },
+      });
+    },
+    [benefits.healthcare, setBenefits],
+  );
+
   return (
     <SectionCard id="benefits" title="Benefits Configuration" subtitle="Configure pre-tax benefit details for more accurate projections">
+      {/* Disclaimer Banner */}
+      <div
+        className="mb-6 flex items-start gap-2 rounded-lg px-4 py-2.5"
+        style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.15)' }}
+      >
+        <Info size={15} className="flex-shrink-0 text-accent mt-0.5" style={{ opacity: 0.7 }} />
+        <p className="text-[12px] leading-snug text-text-tertiary">{DISCLAIMER_TEXT}</p>
+      </div>
+
       {/* US Average preset indicator + Reset button */}
       <div className="flex items-center justify-between mb-4">
         <span
@@ -83,7 +102,7 @@ export function BenefitsSection() {
         </p>
       )}
 
-      {/* Benefits panel — visually disabled when toggle off */}
+      {/* Benefits panel */}
       <div
         style={{
           marginTop: 24,
@@ -108,120 +127,135 @@ export function BenefitsSection() {
           ))}
         </div>
 
-        {activeTab === 'Medical' && (
-          <div className="flex items-center gap-4" style={{ maxWidth: 400 }}>
-            <span className="text-[14px] font-medium text-text-primary">Participation Rate</span>
-            <PercentInput value={benefits.health.participationRate} onChange={(val) => setBenefits({ health: { ...benefits.health, participationRate: val } })} />
+        {/* Healthcare Tab — unified Medical/Dental/Vision */}
+        {activeTab === 'Healthcare' && (
+          <div>
+            <div className="flex items-center gap-4 mb-6" style={{ maxWidth: 400 }}>
+              <span className="text-[14px] font-medium text-text-primary">Participation Rate</span>
+              <PercentInput
+                value={benefits.healthcare.participationRate}
+                onChange={(val) => setBenefits({ healthcare: { ...benefits.healthcare, participationRate: val } })}
+              />
+            </div>
+
+            <div className="glass-secondary !rounded-[14px]">
+              {/* Column headers */}
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div />
+                <p className="text-[13px] font-semibold text-text-primary text-center">Individual</p>
+                <p className="text-[13px] font-semibold text-text-primary text-center">Family</p>
+              </div>
+
+              {/* Medical */}
+              <div className="grid grid-cols-3 gap-4 items-center mb-4">
+                <p className="text-[14px] font-medium text-text-primary">Medical</p>
+                <DollarInput
+                  value={benefits.healthcare.premiums.medical.individual}
+                  onChange={(val) => updatePremium('medical', 'individual', val)}
+                  max={5000}
+                  maxWidth={120}
+                />
+                <DollarInput
+                  value={benefits.healthcare.premiums.medical.family}
+                  onChange={(val) => updatePremium('medical', 'family', val)}
+                  max={10000}
+                  maxWidth={120}
+                />
+              </div>
+
+              {/* Dental */}
+              <div className="grid grid-cols-3 gap-4 items-center mb-4">
+                <p className="text-[14px] font-medium text-text-primary">Dental</p>
+                <DollarInput
+                  value={benefits.healthcare.premiums.dental.individual}
+                  onChange={(val) => updatePremium('dental', 'individual', val)}
+                  max={1000}
+                  maxWidth={120}
+                />
+                <DollarInput
+                  value={benefits.healthcare.premiums.dental.family}
+                  onChange={(val) => updatePremium('dental', 'family', val)}
+                  max={2000}
+                  maxWidth={120}
+                />
+              </div>
+
+              {/* Vision */}
+              <div className="grid grid-cols-3 gap-4 items-center">
+                <p className="text-[14px] font-medium text-text-primary">Vision</p>
+                <DollarInput
+                  value={benefits.healthcare.premiums.vision.individual}
+                  onChange={(val) => updatePremium('vision', 'individual', val)}
+                  max={500}
+                  maxWidth={120}
+                />
+                <DollarInput
+                  value={benefits.healthcare.premiums.vision.family}
+                  onChange={(val) => updatePremium('vision', 'family', val)}
+                  max={1000}
+                  maxWidth={120}
+                />
+              </div>
+
+              <p className="mt-4 text-[11px] text-text-tertiary">Monthly premium per employee</p>
+            </div>
           </div>
         )}
 
-        {activeTab === 'Dental' && (
-          <div className="flex items-center gap-4" style={{ maxWidth: 400 }}>
-            <span className="text-[14px] font-medium text-text-primary">Participation Rate</span>
-            <PercentInput value={benefits.dental?.participationRate ?? 65} onChange={(val) => setBenefits({ dental: { ...benefits.dental, enabled: benefits.dental?.enabled ?? false, participationRate: val, premiums: benefits.dental?.premiums ?? { individual: 35, family: 90 } } })} />
-          </div>
-        )}
-
-        {activeTab === 'Vision' && (
-          <div className="flex items-center gap-4" style={{ maxWidth: 400 }}>
-            <span className="text-[14px] font-medium text-text-primary">Participation Rate</span>
-            <PercentInput value={benefits.vision?.participationRate ?? 60} onChange={(val) => setBenefits({ vision: { ...benefits.vision, enabled: benefits.vision?.enabled ?? false, participationRate: val, premiums: benefits.vision?.premiums ?? { individual: 15, family: 35 } } })} />
-          </div>
-        )}
-
+        {/* Retirement Tab — 4 tier contribution rates */}
         {activeTab === 'Retirement' && (
-          <div className="flex items-center gap-4" style={{ maxWidth: 400 }}>
-            <span className="text-[14px] font-medium text-text-primary">Participation Rate</span>
-            <PercentInput value={benefits.retirement.participationRate} onChange={(val) => setBenefits({ retirement: { ...benefits.retirement, participationRate: val } })} />
+          <div>
+            <div className="flex items-center gap-4 mb-6" style={{ maxWidth: 400 }}>
+              <span className="text-[14px] font-medium text-text-primary">Participation Rate</span>
+              <PercentInput
+                value={benefits.retirement.participationRate}
+                onChange={(val) => setBenefits({ retirement: { ...benefits.retirement, participationRate: val } })}
+              />
+            </div>
+
+            <div className="glass-secondary !rounded-[14px]">
+              <p className="text-[13px] font-semibold text-text-primary mb-4">Contribution Rate by Tier</p>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <PercentInput
+                  label="Entry"
+                  value={benefits.retirement.contributionRates.entry}
+                  onChange={(val) => setBenefits({ retirement: { ...benefits.retirement, contributionRates: { ...benefits.retirement.contributionRates, entry: val } } })}
+                />
+                <PercentInput
+                  label="Mid"
+                  value={benefits.retirement.contributionRates.mid}
+                  onChange={(val) => setBenefits({ retirement: { ...benefits.retirement, contributionRates: { ...benefits.retirement.contributionRates, mid: val } } })}
+                />
+                <PercentInput
+                  label="Senior"
+                  value={benefits.retirement.contributionRates.senior}
+                  onChange={(val) => setBenefits({ retirement: { ...benefits.retirement, contributionRates: { ...benefits.retirement.contributionRates, senior: val } } })}
+                />
+                <PercentInput
+                  label="Executive"
+                  value={benefits.retirement.contributionRates.executive}
+                  onChange={(val) => setBenefits({ retirement: { ...benefits.retirement, contributionRates: { ...benefits.retirement.contributionRates, executive: val } } })}
+                />
+              </div>
+            </div>
           </div>
         )}
 
+        {/* HSA Tab */}
         {activeTab === 'HSA' && (
           <div>
             <div className="flex items-center gap-4" style={{ maxWidth: 400, marginBottom: 24 }}>
               <span className="text-[14px] font-medium text-text-primary">Participation Rate</span>
-              <PercentInput value={benefits.hsa.participationRate} onChange={(val) => setBenefits({ hsa: { ...benefits.hsa, participationRate: val } })} />
+              <PercentInput
+                value={benefits.hsa.participationRate}
+                onChange={(val) => setBenefits({ hsa: { ...benefits.hsa, participationRate: val } })}
+              />
             </div>
             <p className="text-[12px] text-text-tertiary italic" style={{ marginTop: 8 }}>
               Savings estimate will use national average HSA contribution data.
             </p>
           </div>
         )}
-      </div>
-
-      {/* Advanced: Customize Social Security — subtle expandable */}
-      <div style={{ marginTop: 24 }}>
-        <button
-          onClick={() => setShowSocialSecurity(!showSocialSecurity)}
-          className="inline-flex items-center gap-1.5 text-[12px] text-text-tertiary hover:text-text-secondary transition-colors"
-          style={{ opacity: 0.7 }}
-        >
-          <motion.span animate={{ rotate: showSocialSecurity ? 180 : 0 }} transition={{ duration: 0.2 }}>
-            <ChevronDown size={12} className="text-current" />
-          </motion.span>
-          Advanced: Customize Social Security rates
-        </button>
-
-        <AnimatePresence>
-          {showSocialSecurity && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden"
-            >
-              <div className="mt-3 glass-secondary !rounded-[12px]">
-                <div className="text-center">
-                  <p className="text-[14px] font-medium text-text-primary mb-3">
-                    What percentage of your employees are exempt from paying Social Security?
-                  </p>
-                  <div className="flex justify-center">
-                    <PercentInput value={socialSecurity.exemptPercent} onChange={(val) => setSocialSecurity({ exemptPercent: val })} />
-                  </div>
-                  <p className="mt-2 text-[12px] text-text-tertiary">Most companies have 0% exempt employees.</p>
-
-                  <button
-                    onClick={() => setShowExemptionInfo(!showExemptionInfo)}
-                    className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-medium text-accent hover:text-accent/80 transition-colors"
-                  >
-                    <Info size={13} className="text-current" />
-                    Who qualifies for exemption?
-                    <motion.span animate={{ rotate: showExemptionInfo ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                      <ChevronDown size={13} className="text-current" />
-                    </motion.span>
-                  </button>
-
-                  <AnimatePresence>
-                    {showExemptionInfo && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="glass-secondary mt-3 text-left !rounded-[12px]">
-                          <ul className="space-y-2">
-                            {EXEMPTION_ITEMS.map((item) => (
-                              <li key={item} className="flex items-start gap-2 text-[12px] text-text-secondary">
-                                <span className="mt-1.5 h-1 w-1 rounded-full bg-accent flex-shrink-0" />
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                          <p className="mt-3 text-[11px] text-text-tertiary italic border-t border-border-glass-light pt-3">
-                            This does NOT include employees who have reached the annual Social Security wage cap &mdash; they continue to pay throughout the year.
-                          </p>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </SectionCard>
   );

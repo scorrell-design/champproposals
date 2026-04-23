@@ -28,13 +28,9 @@ export interface SalaryTier {
   partTimeAvgHours?: number;
 }
 
-export interface SocialSecurityConfig {
-  exemptPercent: number;
-}
-
 export interface BenefitsConfig {
   enabled: boolean;
-  health: {
+  healthcare: {
     enabled: boolean;
     participationRate: number;
     premiums: {
@@ -58,16 +54,6 @@ export interface BenefitsConfig {
     participationRate: number;
     annualContribution: number;
   };
-  dental: {
-    enabled: boolean;
-    participationRate: number;
-    premiums: { individual: number; family: number };
-  };
-  vision: {
-    enabled: boolean;
-    participationRate: number;
-    premiums: { individual: number; family: number };
-  };
 }
 
 export type IndustryPreset =
@@ -81,7 +67,6 @@ export interface QuickProposalInputs {
   industry: IndustryPreset | null;
   tierCount: 2 | 3 | 4 | 5;
   tiers: SalaryTier[];
-  socialSecurity: SocialSecurityConfig;
   benefits: BenefitsConfig;
 }
 
@@ -90,7 +75,6 @@ export interface InformedAnalysisInputs {
   fileId: string;
   columnMapping: Record<string, string>;
   employeeRows: ParsedEmployeeRow[];
-  socialSecurity: SocialSecurityConfig;
   benefits: BenefitsConfig;
 }
 

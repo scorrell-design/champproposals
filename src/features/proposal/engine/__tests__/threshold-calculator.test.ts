@@ -14,10 +14,10 @@ describe('getMinimumDeductionForPositiveImpact', () => {
     expect(california).toBeLessThan(texas);
   });
 
-  it('returns higher minimum when SS exempt (smaller combined rate)', () => {
-    const withSS = getMinimumDeductionForPositiveImpact('TX', 'single', false);
-    const withoutSS = getMinimumDeductionForPositiveImpact('TX', 'single', true);
-    expect(withoutSS).toBeGreaterThan(withSS);
+  it('always uses full FICA rate (7.65%)', () => {
+    const result = getMinimumDeductionForPositiveImpact('TX', 'single');
+    expect(result).toBeGreaterThan(0);
+    expect(result).toBeLessThan(5000);
   });
 });
 

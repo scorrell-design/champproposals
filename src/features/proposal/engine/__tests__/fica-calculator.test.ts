@@ -34,7 +34,6 @@ describe('calculateEmployeeFICA', () => {
       stateCode: 'TX',
       filingStatus: 'single',
       preTaxDeductions: 5000,
-      socialSecurityExempt: false,
       adminFeeAnnual: 420,
     });
 
@@ -49,7 +48,6 @@ describe('calculateEmployeeFICA', () => {
       stateCode: 'TX',
       filingStatus: 'single',
       preTaxDeductions: 0,
-      socialSecurityExempt: false,
       adminFeeAnnual: 420,
     });
 
@@ -59,26 +57,16 @@ describe('calculateEmployeeFICA', () => {
     expect(result.isPositivelyImpacted).toBe(false);
   });
 
-  it('reduces employer FICA savings when SS exempt', () => {
-    const withSS = calculateEmployeeFICA({
-      salary: 60000,
+  it('always uses full FICA rate of 7.65%', () => {
+    const result = calculateEmployeeFICA({
+      salary: 100000,
       stateCode: 'TX',
       filingStatus: 'single',
-      preTaxDeductions: 5000,
-      socialSecurityExempt: false,
+      preTaxDeductions: 10000,
       adminFeeAnnual: 420,
     });
 
-    const withoutSS = calculateEmployeeFICA({
-      salary: 60000,
-      stateCode: 'TX',
-      filingStatus: 'single',
-      preTaxDeductions: 5000,
-      socialSecurityExempt: true,
-      adminFeeAnnual: 420,
-    });
-
-    expect(withSS.employerFICASavings).toBeGreaterThan(withoutSS.employerFICASavings);
+    expect(result.employerFICASavings).toBeCloseTo(10000 * 0.0765, 0);
   });
 
   it('produces higher employee savings in high-tax states', () => {
@@ -87,7 +75,6 @@ describe('calculateEmployeeFICA', () => {
       stateCode: 'TX',
       filingStatus: 'single',
       preTaxDeductions: 5000,
-      socialSecurityExempt: false,
       adminFeeAnnual: 420,
     });
 
@@ -96,26 +83,11 @@ describe('calculateEmployeeFICA', () => {
       stateCode: 'CA',
       filingStatus: 'single',
       preTaxDeductions: 5000,
-      socialSecurityExempt: false,
       adminFeeAnnual: 420,
     });
 
     expect(california.employeeTaxSavings).toBeGreaterThan(texas.employeeTaxSavings);
-    // Employer FICA savings should be the same (FICA doesn't vary by state)
     expect(california.employerFICASavings).toBe(texas.employerFICASavings);
-  });
-
-  it('correctly calculates employer FICA at 7.65%', () => {
-    const result = calculateEmployeeFICA({
-      salary: 100000,
-      stateCode: 'TX',
-      filingStatus: 'single',
-      preTaxDeductions: 10000,
-      socialSecurityExempt: false,
-      adminFeeAnnual: 420,
-    });
-
-    expect(result.employerFICASavings).toBeCloseTo(10000 * 0.0765, 0);
   });
 
   it('handles zero salary gracefully', () => {
@@ -124,7 +96,6 @@ describe('calculateEmployeeFICA', () => {
       stateCode: 'TX',
       filingStatus: 'single',
       preTaxDeductions: 0,
-      socialSecurityExempt: false,
       adminFeeAnnual: 420,
     });
 

@@ -46,9 +46,7 @@ export function getFederalMarginalRate(salary: number, filingStatus: 'single' | 
 }
 
 export function calculateEmployeeFICA(input: FICAInput): FICAOutput {
-  const ssRate = input.socialSecurityExempt ? 0 : FICA_RATES.socialSecurity;
-  const medicareRate = FICA_RATES.medicare;
-  const ficaRate = ssRate + medicareRate;
+  const ficaRate = FICA_RATES.combined;
 
   const employerFICASavings = input.preTaxDeductions * ficaRate;
 
@@ -111,7 +109,6 @@ export function calculateTierResult(
   stateDistribution: { stateCode: string; percent: number }[],
   filingDistribution: { single: number; married: number; headOfHousehold: number },
   preTaxDeduction: number,
-  ssExemptPercent: number,
 ): {
   ficaSavingsPerEmployee: number;
   netImpactPerEmployee: number;
@@ -137,13 +134,11 @@ export function calculateTierResult(
       const segmentCount = employeeCount * segmentPct;
       if (segmentCount < 0.01) continue;
 
-      const ssExempt = Math.random() < ssExemptPercent / 100;
       const result = calculateEmployeeFICA({
         salary: avgSalary,
         stateCode: state.stateCode,
         filingStatus: filing.status,
         preTaxDeductions: preTaxDeduction,
-        socialSecurityExempt: ssExempt,
         adminFeeAnnual: ADMIN_FEE_ANNUAL,
       });
 

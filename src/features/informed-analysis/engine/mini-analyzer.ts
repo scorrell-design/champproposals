@@ -1,7 +1,7 @@
 import { calculateEmployeeFICA, calculateSavingsRange, estimatePreTaxDeductions } from '@/features/proposal/engine';
 import { ADMIN_FEE_ANNUAL } from '@/config/fica-rates';
 import type { ParsedEmployeeRow, ProposalResult, TierResult, PaycheckComparison } from '@/features/proposal/types/proposal.types';
-import type { BenefitsConfig, SocialSecurityConfig } from '@/features/proposal/types/proposal.types';
+import type { BenefitsConfig } from '@/features/proposal/types/proposal.types';
 import { payPeriodsPerYear } from '@/utils/format';
 import { getFederalMarginalRate } from '@/features/proposal/engine';
 import { STATE_TAX_RATES } from '@/config/tax-rates';
@@ -9,7 +9,6 @@ import { FICA_RATES } from '@/config/fica-rates';
 
 interface AnalyzerConfig {
   benefits: BenefitsConfig;
-  socialSecurity: SocialSecurityConfig;
   payrollFrequency: 'weekly' | 'biweekly' | 'semimonthly' | 'monthly';
 }
 
@@ -35,7 +34,6 @@ export function analyzeEmployees(
   config: AnalyzerConfig,
 ): { result: ProposalResult; employeeResults: EmployeeResult[]; paycheckComparisons: PaycheckComparison[] } {
   const employeeResults: EmployeeResult[] = employees.map((emp) => {
-    const ssExempt = Math.random() < (config.socialSecurity.exemptPercent / 100);
     const tierLevel = getTierLevel(emp.salary);
 
     let healthPremiumAnnual = 0;
@@ -43,8 +41,8 @@ export function analyzeEmployees(
     let hsaAnnual = 0;
 
     if (config.benefits.enabled) {
-      if (config.benefits.health.enabled) {
-        const premium = (config.benefits.health.premiums.medical.individual + config.benefits.health.premiums.medical.family) / 2;
+      if (config.benefits.healthcare.enabled) {
+        const premium = (config.benefits.healthcare.premiums.medical.individual + config.benefits.healthcare.premiums.medical.family) / 2;
         healthPremiumAnnual = premium * 12;
       }
       if (config.benefits.retirement.enabled) {
@@ -56,7 +54,7 @@ export function analyzeEmployees(
     }
 
     const preTaxDeduction = estimatePreTaxDeductions(emp.salary, tierLevel, {
-      healthParticipation: config.benefits.enabled && config.benefits.health.enabled ? config.benefits.health.participationRate : 0,
+      healthParticipation: config.benefits.enabled && config.benefits.healthcare.enabled ? config.benefits.healthcare.participationRate : 0,
       healthPremiumAnnual,
       retirementParticipation: config.benefits.enabled && config.benefits.retirement.enabled ? config.benefits.retirement.participationRate : 0,
       retirementRate,
@@ -69,7 +67,6 @@ export function analyzeEmployees(
       stateCode: emp.stateCode,
       filingStatus: emp.filingStatus,
       preTaxDeductions: preTaxDeduction,
-      socialSecurityExempt: ssExempt,
       adminFeeAnnual: ADMIN_FEE_ANNUAL,
     });
 

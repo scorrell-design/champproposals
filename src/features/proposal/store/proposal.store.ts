@@ -4,7 +4,6 @@ import type {
   StateDistribution,
   FilingStatusDistribution,
   SalaryTier,
-  SocialSecurityConfig,
   BenefitsConfig,
   IndustryPreset,
   ProposalResult,
@@ -13,13 +12,13 @@ import { DEFAULT_FILING_STATUS } from '@/config/filing-status-defaults';
 
 const DEFAULT_BENEFITS: BenefitsConfig = {
   enabled: false,
-  health: {
+  healthcare: {
     enabled: true,
     participationRate: 75,
     premiums: {
-      medical: { individual: 250, family: 650 },
-      dental: { individual: 35, family: 90 },
-      vision: { individual: 15, family: 35 },
+      medical: { individual: 200, family: 775 },
+      dental: { individual: 35, family: 85 },
+      vision: { individual: 15, family: 40 },
     },
   },
   retirement: {
@@ -32,16 +31,6 @@ const DEFAULT_BENEFITS: BenefitsConfig = {
     participationRate: 30,
     annualContribution: 1500,
   },
-  dental: {
-    enabled: false,
-    participationRate: 65,
-    premiums: { individual: 35, family: 90 },
-  },
-  vision: {
-    enabled: false,
-    participationRate: 60,
-    premiums: { individual: 15, family: 35 },
-  },
 };
 
 export interface ProposalState {
@@ -51,7 +40,6 @@ export interface ProposalState {
   industry: IndustryPreset | null;
   tierCount: 2 | 3 | 4 | 5;
   tiers: SalaryTier[];
-  socialSecurity: SocialSecurityConfig;
   benefits: BenefitsConfig;
   result: ProposalResult | null;
   isCalculating: boolean;
@@ -63,7 +51,6 @@ export interface ProposalState {
   setTierCount: (count: 2 | 3 | 4 | 5) => void;
   setTiers: (tiers: SalaryTier[]) => void;
   updateTier: (index: number, tier: Partial<SalaryTier>) => void;
-  setSocialSecurity: (config: SocialSecurityConfig) => void;
   setBenefits: (benefits: Partial<BenefitsConfig>) => void;
   setResult: (result: ProposalResult | null) => void;
   setIsCalculating: (val: boolean) => void;
@@ -83,7 +70,6 @@ export const useProposalStore = create<ProposalState>((set) => ({
   industry: null,
   tierCount: 4,
   tiers: [],
-  socialSecurity: { exemptPercent: 0 },
   benefits: DEFAULT_BENEFITS,
   result: null,
   isCalculating: false,
@@ -108,8 +94,6 @@ export const useProposalStore = create<ProposalState>((set) => ({
       return { tiers };
     }),
 
-  setSocialSecurity: (socialSecurity) => set({ socialSecurity }),
-
   setBenefits: (updates) =>
     set((s) => ({ benefits: { ...s.benefits, ...updates } })),
 
@@ -125,7 +109,6 @@ export const useProposalStore = create<ProposalState>((set) => ({
       industry: null,
       tierCount: 4,
       tiers: [],
-      socialSecurity: { exemptPercent: 0 },
       benefits: DEFAULT_BENEFITS,
       result: null,
       isCalculating: false,

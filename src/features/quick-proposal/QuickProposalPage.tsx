@@ -14,7 +14,7 @@ import { SalaryInsightsSection } from './sections/SalaryInsightsSection';
 import { BenefitsSection } from './sections/BenefitsSection';
 import { ResultsSection } from './sections/ResultsSection';
 
-const DISCLAIMER_TEXT = 'This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Actual results may vary based on final enrollment, payroll data, and plan configuration.';
+const DISCLAIMER_TEXT = 'This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Calculations apply the full standard FICA rate (6.2% Social Security + 1.45% Medicare) and 2026 federal tax tables. Actual results may vary based on final enrollment, payroll data, and plan configuration.';
 
 interface QuickProposalPageProps {
   groupId?: string;
@@ -121,7 +121,7 @@ export function QuickProposalPage({ groupId = 'demo' }: QuickProposalPageProps) 
                 </button>
                 <p className="mt-4 text-[13px] text-text-tertiary">
                   {canGenerate
-                    ? 'Benefits and Social Security are optional. Your proposal will include them if configured.'
+                    ? 'Benefits are optional. Your proposal will include them if configured.'
                     : 'Complete all required sections above to generate your proposal.'}
                 </p>
               </div>

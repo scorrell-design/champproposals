@@ -36,7 +36,6 @@ export function useProposalPersistence(groupId: string) {
           industry: state.industry,
           tierCount: state.tierCount,
           tiers: state.tiers,
-          socialSecurity: state.socialSecurity,
           benefits: state.benefits,
         },
         pdfBlob,

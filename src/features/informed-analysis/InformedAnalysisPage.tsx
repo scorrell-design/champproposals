@@ -21,11 +21,9 @@ type Step = 'upload' | 'mapping' | 'review' | 'results';
 
 const DEFAULT_BENEFITS: BenefitsConfig = {
   enabled: false,
-  health: { enabled: true, participationRate: 75, premiums: { medical: { individual: 250, family: 650 }, dental: { individual: 35, family: 90 }, vision: { individual: 15, family: 35 } } },
+  healthcare: { enabled: true, participationRate: 75, premiums: { medical: { individual: 200, family: 775 }, dental: { individual: 35, family: 85 }, vision: { individual: 15, family: 40 } } },
   retirement: { enabled: false, participationRate: 60, contributionRates: { entry: 4, mid: 6, senior: 8, executive: 10 } },
   hsa: { enabled: false, participationRate: 30, annualContribution: 1500 },
-  dental: { enabled: false, participationRate: 65, premiums: { individual: 35, family: 90 } },
-  vision: { enabled: false, participationRate: 60, premiums: { individual: 15, family: 35 } },
 };
 
 function stripBOM(s: string): string {
@@ -179,7 +177,7 @@ export function InformedAnalysisPage({ groupId: _groupId = 'demo' }: InformedAna
     })).filter((emp) => emp.salary > 0);
 
     setEmployees(parsed);
-    const { result: r, paycheckComparisons: c, employeeResults: er } = analyzeEmployees(parsed, { benefits: DEFAULT_BENEFITS, socialSecurity: { exemptPercent: 0 }, payrollFrequency: currentFreq });
+    const { result: r, paycheckComparisons: c, employeeResults: er } = analyzeEmployees(parsed, { benefits: DEFAULT_BENEFITS, payrollFrequency: currentFreq });
     setResult(r);
     setPaycheckComparisons(c);
     setEmployeeResults(er);
