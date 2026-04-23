@@ -15,7 +15,7 @@ import { getFederalMarginalRate } from '@/features/proposal/engine';
 import { STATE_TAX_RATES } from '@/config/tax-rates';
 import { FICA_RATES, ADMIN_FEE_ANNUAL } from '@/config/fica-rates';
 import type { TierResult } from '@/features/proposal/types/proposal.types';
-import champLogoWhite from '@/assets/champ-logo-white.svg';
+import champLogo from '@/assets/champ-logo.png';
 
 const ACCENT = '#5ECEB0';
 const BG = '#0B1220';
@@ -262,7 +262,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
       <div style={{ padding: '0 32px 48px', maxWidth: 1040, margin: '0 auto' }}>
         {/* B2 — Hero */}
         <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <img src={champLogoWhite} alt="CHAMP" style={{ maxHeight: 96, margin: '0 auto' }} />
+          <img src={champLogo} alt="Champion Health, Inc." style={{ maxHeight: 96, margin: '0 auto' }} />
           <h1 style={{ fontWeight: 700, fontSize: 36, color: '#fff', marginTop: 24 }}>
             Your Customized CHAMP Proposal
           </h1>

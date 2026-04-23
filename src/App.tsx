@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { QuickProposalPage } from './features/quick-proposal/QuickProposalPage';
 import { InformedAnalysisPage } from './features/informed-analysis/InformedAnalysisPage';
-import champLogo from './assets/champ-logo.svg';
+import champLogo from './assets/champ-logo.png';
 
 function NavHeader() {
   return (
