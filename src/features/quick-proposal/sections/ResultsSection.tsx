@@ -300,11 +300,11 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
         </div>
 
         {/* B3 — KPI Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: 48 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: 48, alignItems: 'stretch' }}>
           <KPICard
             label="Anticipated Employee Participation Rate"
             value={`${participationRate}%`}
-            caption="estimated voluntary participation among eligible employees based on internal modeling assumptions and historical participation patterns"
+            caption="estimated voluntary participation among eligible employees"
           />
           <KPICard
             label="Annual Company Savings"
@@ -620,13 +620,16 @@ function KPICard({ label, value, caption }: { label: string; value: string; capt
         boxShadow: CARD_SHADOW,
         borderRadius: 16,
         borderLeft: `4px solid ${ACCENT}`,
-        padding: '32px 24px',
+        padding: '28px 24px',
         textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
       }}
     >
-      <p style={{ fontWeight: 600, fontSize: 16, color: TEXT_SEC }}>{label}</p>
-      <p style={{ fontWeight: 700, fontSize: 56, color: INK, marginTop: 8, lineHeight: 1 }}>{value}</p>
-      <p style={{ fontSize: 13, color: TEXT_MUTED, marginTop: 12, lineHeight: 1.5 }}>{caption}</p>
+      <p style={{ fontWeight: 600, fontSize: 15, color: TEXT_SEC }}>{label}</p>
+      <p style={{ fontWeight: 700, fontSize: 36, fontFamily: FONT_MONO, color: INK, marginTop: 12, lineHeight: 1 }}>{value}</p>
+      <p style={{ fontWeight: 400, fontSize: 12, color: TEXT_MUTED, marginTop: 12, lineHeight: 1.5 }}>{caption}</p>
     </div>
   );
 }
