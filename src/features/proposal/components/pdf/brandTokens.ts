@@ -1,0 +1,15 @@
+export const BRAND = {
+  blue: '#2E8BE8',
+  blueDeep: '#1E5A9E',
+  blueBright: '#3B82F6',
+  blueSoft: '#EFF6FF',
+  orange: '#FF6B35',
+  white: '#FFFFFF',
+  light: '#F7F8FC',
+  ink: '#0F0B2E',
+  muted: '#4A4560',
+  tertiary: '#8A85A0',
+  border: 'rgba(15, 11, 46, 0.08)',
+  borderStrong: 'rgba(15, 11, 46, 0.14)',
+  success: '#10B981',
+};

@@ -1,0 +1,206 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Surfaces (CHAMP deep indigo/navy with purple undertones) ── */
+  --color-base: #0F0B2E;
+  --color-surface-glass: #FFFFFF;
+  --color-surface-glass-light: #F7F8FC;
+  --color-surface-glass-hover: rgba(59, 130, 246, 0.06);
+  --color-surface-glass-active: rgba(59, 130, 246, 0.10);
+
+  /* ── Borders ── */
+  --color-border-glass: rgba(15, 11, 46, 0.08);
+  --color-border-glass-light: rgba(15, 11, 46, 0.06);
+  --color-border-glass-hover: rgba(59, 130, 246, 0.3);
+
+  /* ── Accent (primary CTA blue) ── */
+  --color-accent: #3B82F6;
+  --color-accent-glow: rgba(59, 130, 246, 0.12);
+  --color-accent-muted: rgba(59, 130, 246, 0.6);
+  --color-accent-border: rgba(59, 130, 246, 0.3);
+
+  /* ── Secondary (orange — personality/illustration layer) ── */
+  --color-secondary: #FF6B35;
+  --color-secondary-glow: rgba(255, 107, 53, 0.1);
+
+  /* ── Text ── */
+  --color-text-primary: #0F0B2E;
+  --color-text-secondary: #4A4560;
+  --color-text-tertiary: #8A85A0;
+
+  /* ── Semantic ── */
+  --color-success: #10B981;
+  --color-success-glow: rgba(16, 185, 129, 0.08);
+  --color-warning: #F59E0B;
+  --color-warning-glow: rgba(245, 158, 11, 0.08);
+  --color-error: #EF4444;
+  --color-error-glow: rgba(239, 68, 68, 0.08);
+
+  /* ── CHAMP Brand Tokens ── */
+  --color-champ-blue: #2E8BE8;
+  --color-champ-blue-deep: #1E5A9E;
+  --color-champ-blue-bright: #3B82F6;
+  --color-champ-blue-soft: rgba(59, 130, 246, 0.08);
+  --color-champ-orange: #FF6B35;
+  --color-champ-orange-hover: #E04E1A;
+  --color-champ-yellow: #FFC93C;
+  --color-champ-indigo: #0F0B2E;
+  --color-champ-muted: #4A4560;
+  --color-champ-border: rgba(15, 11, 46, 0.08);
+
+  /* ── Fonts ── */
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "DM Mono", "SF Mono", monospace;
+
+  /* ── Radii ── */
+  --radius-input: 12px;
+  --radius-card: 24px;
+  --radius-card-sm: 18px;
+  --radius-pill: 9999px;
+  --radius-button: 9999px;
+  --radius-segment: 14px;
+}
+
+/* ── Base ── */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  background: #F7F8FC;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2 { font-weight: 800; letter-spacing: -0.02em; }
+h3, h4 { font-weight: 700; letter-spacing: -0.01em; }
+
+/* ── Number input spinners off ── */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ── Scrollbar (subtle) ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(15, 11, 46, 0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(15, 11, 46, 0.2); }
+
+/* ── Card utility classes (solid white on indigo) ── */
+.glass-primary {
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 11, 46, 0.04);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow:
+    0 1px 2px rgba(15, 11, 46, 0.06),
+    0 8px 24px rgba(15, 11, 46, 0.08);
+}
+
+.glass-secondary {
+  background: #F7F8FC;
+  border: 1px solid rgba(15, 11, 46, 0.06);
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.glass-input {
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 11, 46, 0.14);
+  border-radius: 12px;
+  color: var(--color-text-primary);
+  transition: all 200ms ease;
+}
+
+.glass-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.glass-input:focus {
+  outline: none;
+  background: #FFFFFF;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.glass-hover {
+  transition: all 300ms ease-out;
+}
+.glass-hover:hover {
+  background: #F7F8FC;
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px) scale(1.01);
+}
+
+.glass-selected {
+  background: rgba(59, 130, 246, 0.06);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.06);
+}
+
+/* ── Primary CTA button (bright blue pill) ── */
+.btn-accent {
+  background: #3B82F6;
+  color: #FFFFFF;
+  border-radius: 999px;
+  font-weight: 600;
+  padding: 14px 28px;
+  font-size: 15px;
+  transition: all 200ms ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+}
+.btn-accent:hover {
+  background: #2563EB;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* ── Secondary (outline) button ── */
+.btn-glass {
+  background: transparent;
+  border: 2px solid #3B82F6;
+  border-radius: 999px;
+  color: #3B82F6;
+  font-weight: 600;
+  padding: 12px 26px;
+  font-size: 14px;
+  transition: all 200ms ease;
+  cursor: pointer;
+}
+.btn-glass:hover {
+  background: rgba(59, 130, 246, 0.06);
+  border-color: #2563EB;
+}
+
+/* ── Noise texture overlay (very subtle) ── */
+.noise-overlay::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ── Metric label style ── */
+.metric-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-tertiary);
+}
+
+/* ── Divider ── */
+.glass-divider {
+  height: 1px;
+  background: rgba(15, 11, 46, 0.08);
+}

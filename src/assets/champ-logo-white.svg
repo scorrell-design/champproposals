@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 56" fill="none">
+  <!-- Torch icon -->
+  <g transform="translate(108, 0)">
+    <rect x="5" y="24" width="6" height="28" rx="2" fill="#2E8BE8"/>
+    <rect x="3" y="48" width="10" height="4" rx="2" fill="#5BA3ED"/>
+    <path d="M8 24C8 24 14 16 14 10C14 4 10 0 8 0C6 0 2 4 2 10C2 16 8 24 8 24Z" fill="url(#flame-grad-w)"/>
+    <path d="M8 20C8 20 11 15 11 11C11 7 9.5 4 8 4C6.5 4 5 7 5 11C5 15 8 20 8 20Z" fill="url(#flame-inner-w)"/>
+  </g>
+  <defs>
+    <linearGradient id="flame-grad-w" x1="8" y1="0" x2="8" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFC93C"/>
+      <stop offset="0.5" stop-color="#FF6B35"/>
+      <stop offset="1" stop-color="#E04E1A"/>
+    </linearGradient>
+    <linearGradient id="flame-inner-w" x1="8" y1="4" x2="8" y2="20" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFC93C"/>
+      <stop offset="1" stop-color="#FF6B35"/>
+    </linearGradient>
+  </defs>
+  <!-- "Champ" in white -->
+  <text x="0" y="40" font-family="Inter, system-ui, sans-serif" font-weight="800" font-style="italic" font-size="36" fill="#FFFFFF" letter-spacing="-1">Champ</text>
+  <!-- "on" in white -->
+  <text x="124" y="40" font-family="Inter, system-ui, sans-serif" font-weight="800" font-style="italic" font-size="36" fill="#FFFFFF" letter-spacing="-1">on</text>
+  <!-- "Health, Inc." in light blue -->
+  <text x="0" y="54" font-family="Inter, system-ui, sans-serif" font-weight="700" font-size="13" fill="rgba(255,255,255,0.8)" letter-spacing="0.5">Health, Inc.</text>
+</svg>
