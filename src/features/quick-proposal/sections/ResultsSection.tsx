@@ -17,11 +17,21 @@ import { FICA_RATES, ADMIN_FEE_ANNUAL } from '@/config/fica-rates';
 import type { TierResult } from '@/features/proposal/types/proposal.types';
 import champLogo from '@/assets/champ-logo.png';
 
-const ACCENT = '#5ECEB0';
-const BG = '#0B1220';
-const CARD_BG = 'rgba(255,255,255,0.04)';
-const CARD_BORDER = '1px solid rgba(255,255,255,0.08)';
-const MUTED = 'rgba(255,255,255,0.55)';
+const ACCENT = '#3B82F6';
+const ACCENT_HOVER = '#2563EB';
+const PAGE_BG = '#0F0B2E';
+const CARD = '#FFFFFF';
+const CARD_BORDER = '1px solid rgba(15, 11, 46, 0.08)';
+const CARD_SHADOW = '0 4px 24px rgba(15, 11, 46, 0.06)';
+const INK = '#0F0B2E';
+const TEXT_SEC = '#4A4560';
+const TEXT_MUTED = '#8A85A0';
+const ON_DARK = '#FFFFFF';
+const ON_DARK_MUTED = 'rgba(255, 255, 255, 0.72)';
+const SUCCESS = '#10B981';
+const ERROR = '#EF4444';
+const PILL = 999;
+
 const DISCLAIMER_TEXT =
   'This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Calculations apply the full standard FICA rate (6.2% Social Security + 1.45% Medicare) and 2026 federal tax tables. Actual results may vary based on final enrollment, payroll data, and plan configuration.';
 
@@ -199,15 +209,15 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: ACCENT, borderTopColor: 'transparent' }} />
-        <span className="ml-2 text-[14px]" style={{ color: MUTED }}>Calculating savings...</span>
+        <span className="ml-2 text-[14px]" style={{ color: TEXT_MUTED }}>Calculating savings...</span>
       </div>
     );
   }
 
   if (!result) {
     return (
-      <div id="results" className="p-12 text-center rounded-2xl" style={{ background: CARD_BG, border: CARD_BORDER, backdropFilter: 'blur(12px)' }}>
-        <p className="text-[14px]" style={{ color: MUTED }}>
+      <div id="results" className="p-12 text-center rounded-2xl" style={{ background: CARD, border: CARD_BORDER, boxShadow: CARD_SHADOW }}>
+        <p className="text-[14px]" style={{ color: TEXT_MUTED }}>
           Complete the sections above to see your savings projection.
         </p>
       </div>
@@ -222,7 +232,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
     : 0;
 
   return (
-    <div id="results" style={{ background: BG, borderRadius: 24, overflow: 'hidden', fontFamily: '"Inter", sans-serif' }}>
+    <div id="results" style={{ background: PAGE_BG, borderRadius: 24, overflow: 'hidden', fontFamily: '"Inter", sans-serif' }}>
       {/* B1 — Sticky Header */}
       <div
         style={{
@@ -234,26 +244,27 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 32px',
-          background: 'rgba(11, 18, 32, 0.85)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: '#1A1548',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <ShieldCheck size={22} style={{ color: ACCENT }} />
-          <span style={{ fontWeight: 600, fontSize: 18, color: '#fff' }}>The CHAMP Plan</span>
+          <span style={{ fontWeight: 600, fontSize: 18, color: ON_DARK }}>The CHAMP Plan</span>
         </div>
         <button
           style={{
             background: ACCENT,
-            color: BG,
-            borderRadius: 8,
-            padding: '8px 20px',
+            color: ON_DARK,
+            borderRadius: PILL,
+            padding: '8px 24px',
             fontWeight: 600,
             fontSize: 14,
             border: 'none',
             cursor: 'pointer',
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = ACCENT_HOVER; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = ACCENT; }}
         >
           Contact Us
         </button>
@@ -263,7 +274,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
         {/* B2 — Hero */}
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <img src={champLogo} alt="Champion Health, Inc." style={{ maxHeight: 96, margin: '0 auto' }} />
-          <h1 style={{ fontWeight: 700, fontSize: 36, color: '#fff', marginTop: 24 }}>
+          <h1 style={{ fontWeight: 700, fontSize: 36, color: ON_DARK, marginTop: 24 }}>
             Your Customized CHAMP Proposal
           </h1>
           <div style={{ width: 120, height: 2, background: ACCENT, margin: '12px auto 0' }} />
@@ -272,11 +283,11 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
               display: 'inline-block',
               marginTop: 16,
               background: ACCENT,
-              color: BG,
+              color: ON_DARK,
               fontWeight: 600,
               fontSize: 12,
               padding: '4px 14px',
-              borderRadius: 999,
+              borderRadius: PILL,
             }}
           >
             AI-Generated
@@ -304,20 +315,20 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B4 — Key Benefits */}
         <div style={{ marginTop: 56, textAlign: 'center' }}>
-          <h2 style={{ fontWeight: 700, fontSize: 20, color: '#fff' }}>Key Benefits</h2>
+          <h2 style={{ fontWeight: 700, fontSize: 20, color: ON_DARK }}>Key Benefits</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
             {KEY_BENEFITS.map((b) => (
               <span
                 key={b}
                 style={{
-                  background: CARD_BG,
-                  border: `1px solid rgba(94, 206, 176, 0.2)`,
-                  backdropFilter: 'blur(12px)',
-                  borderRadius: 999,
+                  background: CARD,
+                  border: `1px solid rgba(59, 130, 246, 0.2)`,
+                  borderRadius: PILL,
                   padding: '10px 20px',
                   fontSize: 14,
                   fontWeight: 500,
-                  color: '#fff',
+                  color: INK,
+                  boxShadow: CARD_SHADOW,
                 }}
               >
                 {b}
@@ -327,15 +338,15 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
         </div>
 
         {/* B5 — How We Calculate */}
-        <GlassSection style={{ marginTop: 56 }}>
-          <h2 style={{ fontWeight: 700, fontSize: 22, color: '#fff', textAlign: 'center' }}>How We Calculate</h2>
-          <p style={{ fontSize: 15, lineHeight: 1.65, color: MUTED, textAlign: 'center', maxWidth: 820, margin: '16px auto 0' }}>
+        <WhiteCard style={{ marginTop: 56 }}>
+          <h2 style={{ fontWeight: 700, fontSize: 22, color: INK, textAlign: 'center' }}>How We Calculate</h2>
+          <p style={{ fontSize: 15, lineHeight: 1.65, color: TEXT_SEC, textAlign: 'center', maxWidth: 820, margin: '16px auto 0' }}>
             Our sample illustration tool combines industry-standard wages, national W-4 filing patterns, and average U.S. household statistics to create realistic employee populations by industry. With minimal inputs, we can quickly estimate a hypothetical assessment as to the feasibility of implementing the CHAMP plan. For accurate assessments a more detailed analysis needs to be provided.
           </p>
-        </GlassSection>
+        </WhiteCard>
 
         {/* B6 — Paycheck Comparison */}
-        <GlassSection style={{ marginTop: 32 }}>
+        <WhiteCard style={{ marginTop: 32 }}>
           <CollapsibleHeader title="Paycheck Comparison" open={paycheckOpen} onToggle={() => setPaycheckOpen(!paycheckOpen)} />
           <AnimatePresence initial={false}>
             {paycheckOpen && (
@@ -369,7 +380,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
                     nonBenefittingProfile ? (
                       <PaycheckTab profile={nonBenefittingProfile} positive={false} periods={periods} />
                     ) : (
-                      <p style={{ color: MUTED, fontSize: 14, fontStyle: 'italic', textAlign: 'center', padding: '32px 0' }}>
+                      <p style={{ color: TEXT_MUTED, fontSize: 14, fontStyle: 'italic', textAlign: 'center', padding: '32px 0' }}>
                         No employees are projected to see a net decrease under this plan configuration.
                       </p>
                     )
@@ -378,10 +389,10 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
               </motion.div>
             )}
           </AnimatePresence>
-        </GlassSection>
+        </WhiteCard>
 
         {/* B7 — Detailed Analysis */}
-        <GlassSection style={{ marginTop: 32 }}>
+        <WhiteCard style={{ marginTop: 32 }}>
           <CollapsibleHeader title="Detailed Analysis" open={detailedOpen} onToggle={() => setDetailedOpen(!detailedOpen)} />
           <AnimatePresence initial={false}>
             {detailedOpen && (
@@ -394,8 +405,8 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
               >
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 20 }}>
                   {/* Employee Eligibility */}
-                  <div style={{ background: CARD_BG, border: CARD_BORDER, backdropFilter: 'blur(12px)', borderRadius: 16, padding: 24 }}>
-                    <h3 style={{ fontWeight: 600, fontSize: 18, color: '#fff', textAlign: 'center' }}>Employee Eligibility</h3>
+                  <div style={{ background: '#F7F8FC', border: CARD_BORDER, borderRadius: 16, padding: 24 }}>
+                    <h3 style={{ fontWeight: 600, fontSize: 18, color: INK, textAlign: 'center' }}>Employee Eligibility</h3>
                     <div style={{ width: 60, height: 2, background: ACCENT, margin: '8px auto 20px' }} />
                     <StatRow label="Total Eligible Employees" value={String(result.totalEmployees)} />
                     <StatRow label="Eligible Employees" value={String(result.qualifiedEmployees)} />
@@ -404,8 +415,8 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
                   </div>
 
                   {/* Financial Impact */}
-                  <div style={{ background: CARD_BG, border: CARD_BORDER, backdropFilter: 'blur(12px)', borderRadius: 16, padding: 24 }}>
-                    <h3 style={{ fontWeight: 600, fontSize: 18, color: '#fff', textAlign: 'center' }}>Financial Impact</h3>
+                  <div style={{ background: '#F7F8FC', border: CARD_BORDER, borderRadius: 16, padding: 24 }}>
+                    <h3 style={{ fontWeight: 600, fontSize: 18, color: INK, textAlign: 'center' }}>Financial Impact</h3>
                     <div style={{ width: 60, height: 2, background: ACCENT, margin: '8px auto 20px' }} />
                     <StatRow label="Employer Annual Savings (Net of Fees):" value={formatDollar(result.netAnnualBenefit)} />
                     <StatRow label="Monthly Per Employee:" value={formatDollar(Math.round(result.netAnnualBenefit / result.totalEmployees / 12))} />
@@ -420,16 +431,15 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
                     gap: 12,
                     marginTop: 20,
                     padding: '14px 20px',
-                    background: CARD_BG,
+                    background: '#F7F8FC',
                     border: CARD_BORDER,
-                    backdropFilter: 'blur(12px)',
                     borderRadius: 12,
                   }}
                 >
-                  <CheckCircle2 size={20} style={{ color: ACCENT, flexShrink: 0 }} />
-                  <p style={{ fontSize: 14, color: '#fff' }}>
+                  <CheckCircle2 size={20} style={{ color: SUCCESS, flexShrink: 0 }} />
+                  <p style={{ fontSize: 14, color: INK }}>
                     <strong>Statistically Significant:</strong>{' '}
-                    <span style={{ color: MUTED }}>
+                    <span style={{ color: TEXT_SEC }}>
                       This analysis is based on a sample size of {result.totalEmployees} employees, which provides a statistically significant result.
                     </span>
                   </p>
@@ -437,11 +447,11 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
               </motion.div>
             )}
           </AnimatePresence>
-        </GlassSection>
+        </WhiteCard>
 
         {/* B8 — Value Proposition */}
         <div style={{ marginTop: 56, textAlign: 'center' }}>
-          <h2 style={{ fontWeight: 700, fontSize: 24, color: '#fff' }}>Value Proposition</h2>
+          <h2 style={{ fontWeight: 700, fontSize: 24, color: ON_DARK }}>Value Proposition</h2>
           <div
             style={{
               display: 'grid',
@@ -455,9 +465,9 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
               <div
                 key={i}
                 style={{
-                  background: CARD_BG,
+                  background: CARD,
                   border: CARD_BORDER,
-                  backdropFilter: 'blur(12px)',
+                  boxShadow: CARD_SHADOW,
                   borderRadius: 16,
                   padding: 24,
                 }}
@@ -474,15 +484,15 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
                       justifyContent: 'center',
                       fontWeight: 700,
                       fontSize: 16,
-                      color: BG,
+                      color: ON_DARK,
                       flexShrink: 0,
                     }}
                   >
                     {i + 1}
                   </div>
-                  <span style={{ fontWeight: 700, fontSize: 16, color: '#fff' }}>{vp.title}</span>
+                  <span style={{ fontWeight: 700, fontSize: 16, color: INK }}>{vp.title}</span>
                 </div>
-                <p style={{ fontSize: 14, lineHeight: 1.5, color: MUTED, marginTop: 12 }}>{vp.body}</p>
+                <p style={{ fontSize: 14, lineHeight: 1.5, color: TEXT_SEC, marginTop: 12 }}>{vp.body}</p>
               </div>
             ))}
           </div>
@@ -490,7 +500,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B9 — FAQ */}
         <div style={{ marginTop: 56 }}>
-          <h2 style={{ fontWeight: 700, fontSize: 22, color: '#fff', textAlign: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontWeight: 700, fontSize: 22, color: ON_DARK, textAlign: 'center', marginBottom: 24 }}>
             Frequently Asked Questions
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -498,9 +508,9 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
               <div
                 key={i}
                 style={{
-                  background: CARD_BG,
+                  background: CARD,
                   border: CARD_BORDER,
-                  backdropFilter: 'blur(12px)',
+                  boxShadow: CARD_SHADOW,
                   borderRadius: 12,
                   overflow: 'hidden',
                 }}
@@ -521,7 +531,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
                 >
                   <span style={{ fontWeight: 600, fontSize: 16, color: ACCENT }}>{item.q}</span>
                   <motion.span animate={{ rotate: faqOpen === i ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                    <ChevronDown size={18} style={{ color: MUTED }} />
+                    <ChevronDown size={18} style={{ color: ACCENT }} />
                   </motion.span>
                 </button>
                 <AnimatePresence initial={false}>
@@ -533,7 +543,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
                       transition={{ duration: 0.2 }}
                       style={{ overflow: 'hidden' }}
                     >
-                      <p style={{ padding: '0 20px 16px', fontSize: 15, lineHeight: 1.6, color: MUTED }}>
+                      <p style={{ padding: '0 20px 16px', fontSize: 15, lineHeight: 1.6, color: TEXT_SEC }}>
                         {item.a}
                       </p>
                     </motion.div>
@@ -545,22 +555,22 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
         </div>
 
         {/* B10 — CTA Block */}
-        <GlassSection style={{ marginTop: 56, textAlign: 'center' }}>
+        <WhiteCard style={{ marginTop: 56, textAlign: 'center' }}>
           <h2 style={{ fontWeight: 700, fontSize: 24, color: ACCENT }}>
             Ready to boost employee satisfaction and reduce tax liability?
           </h2>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', marginTop: 12 }}>
+          <p style={{ fontSize: 16, color: TEXT_SEC, marginTop: 12 }}>
             Our dedicated team will guide you through every step of the implementation process.
           </p>
-        </GlassSection>
+        </WhiteCard>
 
         {/* B11 — Disclaimer */}
-        <GlassSection style={{ marginTop: 32, textAlign: 'center' }}>
-          <h3 style={{ fontWeight: 700, fontSize: 18, color: '#fff' }}>Disclaimer</h3>
-          <p style={{ fontSize: 13, lineHeight: 1.6, color: MUTED, marginTop: 12 }}>
+        <WhiteCard style={{ marginTop: 32, textAlign: 'center' }}>
+          <h3 style={{ fontWeight: 700, fontSize: 18, color: INK }}>Disclaimer</h3>
+          <p style={{ fontSize: 13, lineHeight: 1.6, color: TEXT_MUTED, marginTop: 12 }}>
             {DISCLAIMER_TEXT}
           </p>
-        </GlassSection>
+        </WhiteCard>
 
         {/* B12 — Download Button */}
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
@@ -572,15 +582,18 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
               alignItems: 'center',
               gap: 10,
               background: ACCENT,
-              color: BG,
+              color: ON_DARK,
               fontWeight: 600,
               fontSize: 16,
               padding: '14px 32px',
-              borderRadius: 10,
+              borderRadius: PILL,
               border: 'none',
               cursor: isGenerating ? 'wait' : 'pointer',
               opacity: isGenerating ? 0.6 : 1,
+              boxShadow: '0 4px 16px rgba(59, 130, 246, 0.25)',
             }}
+            onMouseEnter={(e) => { if (!isGenerating) e.currentTarget.style.background = ACCENT_HOVER; }}
+            onMouseLeave={(e) => { if (!isGenerating) e.currentTarget.style.background = ACCENT; }}
           >
             <Download size={18} />
             {isGenerating ? 'Generating...' : 'Download Full Proposal'}
@@ -597,29 +610,29 @@ function KPICard({ label, value, caption }: { label: string; value: string; capt
   return (
     <div
       style={{
-        background: CARD_BG,
+        background: CARD,
         border: CARD_BORDER,
-        backdropFilter: 'blur(12px)',
+        boxShadow: CARD_SHADOW,
         borderRadius: 16,
         borderLeft: `4px solid ${ACCENT}`,
         padding: '32px 24px',
         textAlign: 'center',
       }}
     >
-      <p style={{ fontWeight: 600, fontSize: 16, color: '#fff' }}>{label}</p>
-      <p style={{ fontWeight: 700, fontSize: 56, color: '#fff', marginTop: 8, lineHeight: 1 }}>{value}</p>
-      <p style={{ fontSize: 13, color: MUTED, marginTop: 12, lineHeight: 1.5 }}>{caption}</p>
+      <p style={{ fontWeight: 600, fontSize: 16, color: TEXT_SEC }}>{label}</p>
+      <p style={{ fontWeight: 700, fontSize: 56, color: INK, marginTop: 8, lineHeight: 1 }}>{value}</p>
+      <p style={{ fontSize: 13, color: TEXT_MUTED, marginTop: 12, lineHeight: 1.5 }}>{caption}</p>
     </div>
   );
 }
 
-function GlassSection({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+function WhiteCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div
       style={{
-        background: CARD_BG,
+        background: CARD,
         border: CARD_BORDER,
-        backdropFilter: 'blur(12px)',
+        boxShadow: CARD_SHADOW,
         borderRadius: 16,
         padding: 32,
         ...style,
@@ -645,8 +658,8 @@ function CollapsibleHeader({ title, open, onToggle }: { title: string; open: boo
         padding: 0,
       }}
     >
-      <h2 style={{ fontWeight: 700, fontSize: 22, color: '#fff' }}>{title}</h2>
-      {open ? <Minus size={20} style={{ color: MUTED }} /> : <Plus size={20} style={{ color: MUTED }} />}
+      <h2 style={{ fontWeight: 700, fontSize: 22, color: INK }}>{title}</h2>
+      {open ? <Minus size={20} style={{ color: TEXT_MUTED }} /> : <Plus size={20} style={{ color: TEXT_MUTED }} />}
     </button>
   );
 }
@@ -657,12 +670,12 @@ function PillTab({ label, active, onClick }: { label: string; active: boolean; o
       onClick={onClick}
       style={{
         padding: '8px 20px',
-        borderRadius: 999,
+        borderRadius: PILL,
         fontWeight: 600,
         fontSize: 14,
-        border: active ? 'none' : '1px solid rgba(255,255,255,0.15)',
+        border: active ? 'none' : `1px solid rgba(15, 11, 46, 0.14)`,
         background: active ? ACCENT : 'transparent',
-        color: active ? BG : MUTED,
+        color: active ? ON_DARK : TEXT_SEC,
         cursor: 'pointer',
         transition: 'all 200ms',
       }}
@@ -674,15 +687,15 @@ function PillTab({ label, active, onClick }: { label: string; active: boolean; o
 
 function StatRow({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-      <span style={{ fontSize: 14, color: MUTED }}>{label}</span>
-      <span style={{ fontWeight: 700, fontSize: 18, color: '#fff' }}>{value}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(15, 11, 46, 0.06)' }}>
+      <span style={{ fontSize: 14, color: TEXT_SEC }}>{label}</span>
+      <span style={{ fontWeight: 700, fontSize: 18, color: INK }}>{value}</span>
     </div>
   );
 }
 
 function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProfile; positive: boolean; periods: number }) {
-  const deltaColor = positive ? ACCENT : '#EF4444';
+  const deltaColor = positive ? SUCCESS : ERROR;
   const sign = positive ? '+' : '';
   const fedSaved = profile.fedBefore - profile.fedAfter;
   const stateSaved = profile.stateBefore - profile.stateAfter;
@@ -694,7 +707,7 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
     <div>
       {/* Employee Profile bar */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
-        <h3 style={{ fontWeight: 600, fontSize: 16, color: '#fff' }}>Employee Profile</h3>
+        <h3 style={{ fontWeight: 600, fontSize: 16, color: INK }}>Employee Profile</h3>
         <div style={{ width: 60, height: 2, background: ACCENT, margin: '6px auto 16px' }} />
         <div style={{ display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
           <ProfileStat label="Annual Salary" value={formatDollar(profile.annualSalary)} />
@@ -707,8 +720,8 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
       {/* Two-column paycheck comparison */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         {/* Current Paycheck */}
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 20 }}>
-          <p style={{ fontWeight: 600, fontSize: 14, color: MUTED, marginBottom: 16 }}>Current Paycheck (Bi-weekly)</p>
+        <div style={{ background: '#F7F8FC', border: CARD_BORDER, borderRadius: 12, padding: 20 }}>
+          <p style={{ fontWeight: 600, fontSize: 14, color: TEXT_SEC, marginBottom: 16 }}>Current Paycheck (Bi-weekly)</p>
           <PaySection label="Earnings">
             <PayRow label="Gross Pay" value={profile.grossPayPerPeriod} />
           </PaySection>
@@ -720,15 +733,15 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
             <PayRow label="State Withholding" value={-profile.stateBefore} muted />
             <PayRow label="FICA (7.65%)" value={-profile.ficaBefore} muted />
           </PaySection>
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '12px 0' }} />
+          <div style={{ height: 1, background: 'rgba(15, 11, 46, 0.1)', margin: '12px 0' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 700, fontSize: 14, color: '#fff' }}>Net Pay</span>
-            <span style={{ fontWeight: 700, fontSize: 16, color: '#fff', fontFamily: 'monospace' }}>{formatDollarCents(profile.netBefore)}</span>
+            <span style={{ fontWeight: 700, fontSize: 14, color: INK }}>Net Pay</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: INK, fontFamily: 'monospace' }}>{formatDollarCents(profile.netBefore)}</span>
           </div>
         </div>
 
         {/* Paycheck with CHAMP */}
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid rgba(94, 206, 176, 0.15)`, borderRadius: 12, padding: 20 }}>
+        <div style={{ background: '#F7F8FC', border: `1px solid rgba(59, 130, 246, 0.2)`, borderRadius: 12, padding: 20 }}>
           <p style={{ fontWeight: 600, fontSize: 14, color: ACCENT, marginBottom: 16 }}>Paycheck with CHAMP</p>
           <PaySection label="Earnings">
             <PayRow label="Gross Pay" value={profile.grossPayPerPeriod} />
@@ -744,10 +757,10 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
           <PaySection label="CHAMP Benefit" accent>
             <PayRow label="CHAMP Benefit" value={profile.champBenefit} accent />
           </PaySection>
-          <div style={{ height: 1, background: 'rgba(94, 206, 176, 0.2)', margin: '12px 0' }} />
+          <div style={{ height: 1, background: 'rgba(59, 130, 246, 0.2)', margin: '12px 0' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 700, fontSize: 14, color: '#fff' }}>Net Pay</span>
-            <span style={{ fontWeight: 700, fontSize: 16, color: '#fff', fontFamily: 'monospace' }}>{formatDollarCents(profile.netAfter)}</span>
+            <span style={{ fontWeight: 700, fontSize: 14, color: INK }}>Net Pay</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: INK, fontFamily: 'monospace' }}>{formatDollarCents(profile.netAfter)}</span>
           </div>
           <p style={{ fontSize: 13, fontWeight: 600, color: deltaColor, marginTop: 8, textAlign: 'right' }}>
             {sign}{formatDollarCents(profile.delta)} ({sign}{Math.abs(profile.deltaPercent).toFixed(1)}%)
@@ -756,27 +769,27 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
       </div>
 
       {/* Annual Impact Summary */}
-      <div style={{ textAlign: 'center', marginTop: 24 }}>
-        <h3 style={{ fontWeight: 600, fontSize: 16, color: '#fff' }}>Annual Impact Summary</h3>
+      <div style={{ textAlign: 'center', marginTop: 24, background: '#F7F8FC', border: CARD_BORDER, borderRadius: 12, padding: 20 }}>
+        <h3 style={{ fontWeight: 600, fontSize: 16, color: INK }}>Annual Impact Summary</h3>
         <div style={{ width: 60, height: 2, background: ACCENT, margin: '6px auto 16px' }} />
         <div style={{ display: 'flex', justifyContent: 'center', gap: 48, flexWrap: 'wrap' }}>
           <div>
-            <p style={{ fontWeight: 700, fontSize: 22, color: '#fff', fontFamily: 'monospace' }}>
+            <p style={{ fontWeight: 700, fontSize: 22, color: INK, fontFamily: 'monospace' }}>
               {formatDollarCents(profile.annualIncrease)}
             </p>
-            <p style={{ fontSize: 12, color: MUTED }}>Annual Take-Home Increase</p>
+            <p style={{ fontSize: 12, color: TEXT_MUTED }}>Annual Take-Home Increase</p>
           </div>
           <div>
-            <p style={{ fontWeight: 700, fontSize: 22, color: '#fff', fontFamily: 'monospace' }}>
+            <p style={{ fontWeight: 700, fontSize: 22, color: INK, fontFamily: 'monospace' }}>
               {formatDollarCents(totalTaxSavingsAnnual)}
             </p>
-            <p style={{ fontSize: 12, color: MUTED }}>Total Tax Savings</p>
+            <p style={{ fontSize: 12, color: TEXT_MUTED }}>Total Tax Savings</p>
           </div>
           <div>
             <p style={{ fontWeight: 700, fontSize: 22, color: ACCENT, fontFamily: 'monospace' }}>
               {sign}{Math.abs(increasePct).toFixed(1)}%
             </p>
-            <p style={{ fontSize: 12, color: MUTED }}>Increase Percentage</p>
+            <p style={{ fontSize: 12, color: TEXT_MUTED }}>Increase Percentage</p>
           </div>
         </div>
       </div>
@@ -787,8 +800,8 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
 function ProfileStat({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ textAlign: 'center' }}>
-      <p style={{ fontSize: 12, color: MUTED }}>{label}</p>
-      <p style={{ fontWeight: 600, fontSize: 15, color: '#fff', marginTop: 2 }}>{value}</p>
+      <p style={{ fontSize: 12, color: TEXT_MUTED }}>{label}</p>
+      <p style={{ fontWeight: 600, fontSize: 15, color: INK, marginTop: 2 }}>{value}</p>
     </div>
   );
 }
@@ -796,7 +809,7 @@ function ProfileStat({ label, value }: { label: string; value: string }) {
 function PaySection({ label, children, accent }: { label: string; children: React.ReactNode; accent?: boolean }) {
   return (
     <div style={{ marginTop: 12 }}>
-      <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: accent ? ACCENT : MUTED, marginBottom: 4 }}>{label}</p>
+      <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: accent ? ACCENT : TEXT_MUTED, marginBottom: 4 }}>{label}</p>
       {children}
     </div>
   );
@@ -805,8 +818,8 @@ function PaySection({ label, children, accent }: { label: string; children: Reac
 function PayRow({ label, value, muted, accent }: { label: string; value: number; muted?: boolean; accent?: boolean }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
-      <span style={{ color: accent ? ACCENT : MUTED }}>{label}</span>
-      <span style={{ fontFamily: 'monospace', color: accent ? ACCENT : muted ? 'rgba(255,255,255,0.4)' : '#fff' }}>
+      <span style={{ color: accent ? ACCENT : TEXT_SEC }}>{label}</span>
+      <span style={{ fontFamily: 'monospace', color: accent ? ACCENT : muted ? TEXT_MUTED : INK }}>
         {value < 0 ? `(${formatDollarCents(Math.abs(value))})` : formatDollarCents(value)}
       </span>
     </div>
