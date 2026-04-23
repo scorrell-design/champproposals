@@ -42,8 +42,14 @@ export function analyzeEmployees(
 
     if (config.benefits.enabled) {
       if (config.benefits.healthcare.enabled) {
-        const premium = (config.benefits.healthcare.premiums.medical.individual + config.benefits.healthcare.premiums.medical.family) / 2;
-        healthPremiumAnnual = premium * 12;
+        const hc = config.benefits.healthcare;
+        const medAvg = (hc.medical.premiums.individual + hc.medical.premiums.family) / 2;
+        const denAvg = (hc.dental.premiums.individual + hc.dental.premiums.family) / 2;
+        const visAvg = (hc.vision.premiums.individual + hc.vision.premiums.family) / 2;
+        healthPremiumAnnual =
+          medAvg * 12 * (hc.medical.participationRate / 100) +
+          denAvg * 12 * (hc.dental.participationRate / 100) +
+          visAvg * 12 * (hc.vision.participationRate / 100);
       }
       if (config.benefits.retirement.enabled) {
         retirementRate = 6;
@@ -54,7 +60,7 @@ export function analyzeEmployees(
     }
 
     const preTaxDeduction = estimatePreTaxDeductions(emp.salary, tierLevel, {
-      healthParticipation: config.benefits.enabled && config.benefits.healthcare.enabled ? config.benefits.healthcare.participationRate : 0,
+      healthParticipation: config.benefits.enabled && config.benefits.healthcare.enabled ? 100 : 0,
       healthPremiumAnnual,
       retirementParticipation: config.benefits.enabled && config.benefits.retirement.enabled ? config.benefits.retirement.participationRate : 0,
       retirementRate,

@@ -21,7 +21,7 @@ type Step = 'upload' | 'mapping' | 'review' | 'results';
 
 const DEFAULT_BENEFITS: BenefitsConfig = {
   enabled: false,
-  healthcare: { enabled: true, participationRate: 75, premiums: { medical: { individual: 200, family: 775 }, dental: { individual: 35, family: 85 }, vision: { individual: 15, family: 40 } } },
+  healthcare: { enabled: true, medical: { participationRate: 75, premiums: { individual: 200, family: 775 } }, dental: { participationRate: 75, premiums: { individual: 35, family: 85 } }, vision: { participationRate: 75, premiums: { individual: 15, family: 40 } } },
   retirement: { enabled: false, participationRate: 60, contributionRates: { entry: 4, mid: 6, senior: 8, executive: 10 } },
   hsa: { enabled: false, participationRate: 30, annualContribution: 1500 },
 };

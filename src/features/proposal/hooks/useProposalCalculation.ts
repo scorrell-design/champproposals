@@ -41,8 +41,14 @@ export function useProposalCalculation() {
 
       if (benefits.enabled) {
         if (benefits.healthcare.enabled) {
-          const avgPremium = (benefits.healthcare.premiums.medical.individual + benefits.healthcare.premiums.medical.family) / 2;
-          healthPremiumAnnual = avgPremium * 12;
+          const hc = benefits.healthcare;
+          const medAvg = (hc.medical.premiums.individual + hc.medical.premiums.family) / 2;
+          const denAvg = (hc.dental.premiums.individual + hc.dental.premiums.family) / 2;
+          const visAvg = (hc.vision.premiums.individual + hc.vision.premiums.family) / 2;
+          healthPremiumAnnual =
+            medAvg * 12 * (hc.medical.participationRate / 100) +
+            denAvg * 12 * (hc.dental.participationRate / 100) +
+            visAvg * 12 * (hc.vision.participationRate / 100);
         }
         if (benefits.retirement.enabled) {
           retirementRate = benefits.retirement.contributionRates[tier.level] ?? 6;
@@ -53,7 +59,7 @@ export function useProposalCalculation() {
       }
 
       const preTaxDeduction = estimatePreTaxDeductions(avgSalary, tier.level, {
-        healthParticipation: benefits.enabled && benefits.healthcare.enabled ? benefits.healthcare.participationRate : 0,
+        healthParticipation: benefits.enabled && benefits.healthcare.enabled ? 100 : 0,
         healthPremiumAnnual,
         retirementParticipation: benefits.enabled && benefits.retirement.enabled ? benefits.retirement.participationRate : 0,
         retirementRate,
