@@ -21,8 +21,10 @@ const ACCENT = '#3B82F6';
 const ACCENT_HOVER = '#2563EB';
 const PAGE_BG = '#0F0B2E';
 const CARD = '#FFFFFF';
-const CARD_BORDER = '1px solid rgba(15, 11, 46, 0.08)';
-const CARD_SHADOW = '0 4px 24px rgba(15, 11, 46, 0.06)';
+const CARD_BORDER = '1px solid rgba(15, 11, 46, 0.04)';
+const CARD_SHADOW = '0 1px 2px rgba(15, 11, 46, 0.06), 0 8px 24px rgba(15, 11, 46, 0.08)';
+const BTN_SHADOW = '0 4px 14px rgba(59, 130, 246, 0.3)';
+const BTN_SHADOW_HOVER = '0 6px 20px rgba(59, 130, 246, 0.4)';
 const INK = '#0F0B2E';
 const TEXT_SEC = '#4A4560';
 const TEXT_MUTED = '#8A85A0';
@@ -31,6 +33,8 @@ const ON_DARK_MUTED = 'rgba(255, 255, 255, 0.72)';
 const SUCCESS = '#10B981';
 const ERROR = '#EF4444';
 const PILL = 999;
+const FONT = '"Inter", system-ui, -apple-system, sans-serif';
+const FONT_MONO = '"DM Mono", "SF Mono", monospace';
 
 const DISCLAIMER_TEXT =
   'This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Calculations apply the full standard FICA rate (6.2% Social Security + 1.45% Medicare) and 2026 federal tax tables. Actual results may vary based on final enrollment, payroll data, and plan configuration.';
@@ -232,7 +236,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
     : 0;
 
   return (
-    <div id="results" style={{ background: PAGE_BG, borderRadius: 24, overflow: 'hidden', fontFamily: '"Inter", sans-serif' }}>
+    <div id="results" style={{ background: PAGE_BG, borderRadius: 24, overflow: 'hidden', fontFamily: FONT }}>
       {/* B1 — Sticky Header */}
       <div
         style={{
@@ -262,9 +266,10 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
             fontSize: 14,
             border: 'none',
             cursor: 'pointer',
+            boxShadow: BTN_SHADOW,
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = ACCENT_HOVER; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = ACCENT; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = ACCENT_HOVER; e.currentTarget.style.boxShadow = BTN_SHADOW_HOVER; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.boxShadow = BTN_SHADOW; }}
         >
           Contact Us
         </button>
@@ -274,7 +279,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
         {/* B2 — Hero */}
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <img src={champLogo} alt="Champion Health, Inc." style={{ maxHeight: 96, margin: '0 auto' }} />
-          <h1 style={{ fontWeight: 700, fontSize: 36, color: ON_DARK, marginTop: 24 }}>
+          <h1 style={{ fontWeight: 800, fontSize: 36, letterSpacing: '-0.02em', color: ON_DARK, marginTop: 24 }}>
             Your Customized CHAMP Proposal
           </h1>
           <div style={{ width: 120, height: 2, background: ACCENT, margin: '12px auto 0' }} />
@@ -315,7 +320,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B4 — Key Benefits */}
         <div style={{ marginTop: 56, textAlign: 'center' }}>
-          <h2 style={{ fontWeight: 700, fontSize: 20, color: ON_DARK }}>Key Benefits</h2>
+          <h2 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', color: ON_DARK }}>Key Benefits</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
             {KEY_BENEFITS.map((b) => (
               <span
@@ -339,7 +344,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B5 — How We Calculate */}
         <WhiteCard style={{ marginTop: 56 }}>
-          <h2 style={{ fontWeight: 700, fontSize: 22, color: INK, textAlign: 'center' }}>How We Calculate</h2>
+          <h2 style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', color: INK, textAlign: 'center' }}>How We Calculate</h2>
           <p style={{ fontSize: 15, lineHeight: 1.65, color: TEXT_SEC, textAlign: 'center', maxWidth: 820, margin: '16px auto 0' }}>
             Our sample illustration tool combines industry-standard wages, national W-4 filing patterns, and average U.S. household statistics to create realistic employee populations by industry. With minimal inputs, we can quickly estimate a hypothetical assessment as to the feasibility of implementing the CHAMP plan. For accurate assessments a more detailed analysis needs to be provided.
           </p>
@@ -406,7 +411,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 20 }}>
                   {/* Employee Eligibility */}
                   <div style={{ background: '#F7F8FC', border: CARD_BORDER, borderRadius: 16, padding: 24 }}>
-                    <h3 style={{ fontWeight: 600, fontSize: 18, color: INK, textAlign: 'center' }}>Employee Eligibility</h3>
+                    <h3 style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em', color: INK, textAlign: 'center' }}>Employee Eligibility</h3>
                     <div style={{ width: 60, height: 2, background: ACCENT, margin: '8px auto 20px' }} />
                     <StatRow label="Total Eligible Employees" value={String(result.totalEmployees)} />
                     <StatRow label="Eligible Employees" value={String(result.qualifiedEmployees)} />
@@ -416,7 +421,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
                   {/* Financial Impact */}
                   <div style={{ background: '#F7F8FC', border: CARD_BORDER, borderRadius: 16, padding: 24 }}>
-                    <h3 style={{ fontWeight: 600, fontSize: 18, color: INK, textAlign: 'center' }}>Financial Impact</h3>
+                    <h3 style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em', color: INK, textAlign: 'center' }}>Financial Impact</h3>
                     <div style={{ width: 60, height: 2, background: ACCENT, margin: '8px auto 20px' }} />
                     <StatRow label="Employer Annual Savings (Net of Fees):" value={formatDollar(result.netAnnualBenefit)} />
                     <StatRow label="Monthly Per Employee:" value={formatDollar(Math.round(result.netAnnualBenefit / result.totalEmployees / 12))} />
@@ -451,7 +456,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B8 — Value Proposition */}
         <div style={{ marginTop: 56, textAlign: 'center' }}>
-          <h2 style={{ fontWeight: 700, fontSize: 24, color: ON_DARK }}>Value Proposition</h2>
+          <h2 style={{ fontWeight: 800, fontSize: 24, letterSpacing: '-0.02em', color: ON_DARK }}>Value Proposition</h2>
           <div
             style={{
               display: 'grid',
@@ -500,7 +505,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B9 — FAQ */}
         <div style={{ marginTop: 56 }}>
-          <h2 style={{ fontWeight: 700, fontSize: 22, color: ON_DARK, textAlign: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', color: ON_DARK, textAlign: 'center', marginBottom: 24 }}>
             Frequently Asked Questions
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -556,7 +561,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B10 — CTA Block */}
         <WhiteCard style={{ marginTop: 56, textAlign: 'center' }}>
-          <h2 style={{ fontWeight: 700, fontSize: 24, color: ACCENT }}>
+          <h2 style={{ fontWeight: 800, fontSize: 24, letterSpacing: '-0.02em', color: ACCENT }}>
             Ready to boost employee satisfaction and reduce tax liability?
           </h2>
           <p style={{ fontSize: 16, color: TEXT_SEC, marginTop: 12 }}>
@@ -566,7 +571,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
 
         {/* B11 — Disclaimer */}
         <WhiteCard style={{ marginTop: 32, textAlign: 'center' }}>
-          <h3 style={{ fontWeight: 700, fontSize: 18, color: INK }}>Disclaimer</h3>
+          <h3 style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em', color: INK }}>Disclaimer</h3>
           <p style={{ fontSize: 13, lineHeight: 1.6, color: TEXT_MUTED, marginTop: 12 }}>
             {DISCLAIMER_TEXT}
           </p>
@@ -590,10 +595,10 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
               border: 'none',
               cursor: isGenerating ? 'wait' : 'pointer',
               opacity: isGenerating ? 0.6 : 1,
-              boxShadow: '0 4px 16px rgba(59, 130, 246, 0.25)',
+              boxShadow: BTN_SHADOW,
             }}
-            onMouseEnter={(e) => { if (!isGenerating) e.currentTarget.style.background = ACCENT_HOVER; }}
-            onMouseLeave={(e) => { if (!isGenerating) e.currentTarget.style.background = ACCENT; }}
+            onMouseEnter={(e) => { if (!isGenerating) { e.currentTarget.style.background = ACCENT_HOVER; e.currentTarget.style.boxShadow = BTN_SHADOW_HOVER; } }}
+            onMouseLeave={(e) => { if (!isGenerating) { e.currentTarget.style.background = ACCENT; e.currentTarget.style.boxShadow = BTN_SHADOW; } }}
           >
             <Download size={18} />
             {isGenerating ? 'Generating...' : 'Download Full Proposal'}
@@ -658,7 +663,7 @@ function CollapsibleHeader({ title, open, onToggle }: { title: string; open: boo
         padding: 0,
       }}
     >
-      <h2 style={{ fontWeight: 700, fontSize: 22, color: INK }}>{title}</h2>
+      <h2 style={{ fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', color: INK }}>{title}</h2>
       {open ? <Minus size={20} style={{ color: TEXT_MUTED }} /> : <Plus size={20} style={{ color: TEXT_MUTED }} />}
     </button>
   );
@@ -707,7 +712,7 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
     <div>
       {/* Employee Profile bar */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
-        <h3 style={{ fontWeight: 600, fontSize: 16, color: INK }}>Employee Profile</h3>
+        <h3 style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.01em', color: INK }}>Employee Profile</h3>
         <div style={{ width: 60, height: 2, background: ACCENT, margin: '6px auto 16px' }} />
         <div style={{ display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
           <ProfileStat label="Annual Salary" value={formatDollar(profile.annualSalary)} />
@@ -736,7 +741,7 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
           <div style={{ height: 1, background: 'rgba(15, 11, 46, 0.1)', margin: '12px 0' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontWeight: 700, fontSize: 14, color: INK }}>Net Pay</span>
-            <span style={{ fontWeight: 700, fontSize: 16, color: INK, fontFamily: 'monospace' }}>{formatDollarCents(profile.netBefore)}</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: INK, fontFamily: FONT_MONO }}>{formatDollarCents(profile.netBefore)}</span>
           </div>
         </div>
 
@@ -760,7 +765,7 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
           <div style={{ height: 1, background: 'rgba(59, 130, 246, 0.2)', margin: '12px 0' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontWeight: 700, fontSize: 14, color: INK }}>Net Pay</span>
-            <span style={{ fontWeight: 700, fontSize: 16, color: INK, fontFamily: 'monospace' }}>{formatDollarCents(profile.netAfter)}</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: INK, fontFamily: FONT_MONO }}>{formatDollarCents(profile.netAfter)}</span>
           </div>
           <p style={{ fontSize: 13, fontWeight: 600, color: deltaColor, marginTop: 8, textAlign: 'right' }}>
             {sign}{formatDollarCents(profile.delta)} ({sign}{Math.abs(profile.deltaPercent).toFixed(1)}%)
@@ -770,23 +775,23 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
 
       {/* Annual Impact Summary */}
       <div style={{ textAlign: 'center', marginTop: 24, background: '#F7F8FC', border: CARD_BORDER, borderRadius: 12, padding: 20 }}>
-        <h3 style={{ fontWeight: 600, fontSize: 16, color: INK }}>Annual Impact Summary</h3>
+        <h3 style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.01em', color: INK }}>Annual Impact Summary</h3>
         <div style={{ width: 60, height: 2, background: ACCENT, margin: '6px auto 16px' }} />
         <div style={{ display: 'flex', justifyContent: 'center', gap: 48, flexWrap: 'wrap' }}>
           <div>
-            <p style={{ fontWeight: 700, fontSize: 22, color: INK, fontFamily: 'monospace' }}>
+            <p style={{ fontWeight: 700, fontSize: 22, color: INK, fontFamily: FONT_MONO }}>
               {formatDollarCents(profile.annualIncrease)}
             </p>
             <p style={{ fontSize: 12, color: TEXT_MUTED }}>Annual Take-Home Increase</p>
           </div>
           <div>
-            <p style={{ fontWeight: 700, fontSize: 22, color: INK, fontFamily: 'monospace' }}>
+            <p style={{ fontWeight: 700, fontSize: 22, color: INK, fontFamily: FONT_MONO }}>
               {formatDollarCents(totalTaxSavingsAnnual)}
             </p>
             <p style={{ fontSize: 12, color: TEXT_MUTED }}>Total Tax Savings</p>
           </div>
           <div>
-            <p style={{ fontWeight: 700, fontSize: 22, color: ACCENT, fontFamily: 'monospace' }}>
+            <p style={{ fontWeight: 700, fontSize: 22, color: ACCENT, fontFamily: FONT_MONO }}>
               {sign}{Math.abs(increasePct).toFixed(1)}%
             </p>
             <p style={{ fontSize: 12, color: TEXT_MUTED }}>Increase Percentage</p>
@@ -819,7 +824,7 @@ function PayRow({ label, value, muted, accent }: { label: string; value: number;
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
       <span style={{ color: accent ? ACCENT : TEXT_SEC }}>{label}</span>
-      <span style={{ fontFamily: 'monospace', color: accent ? ACCENT : muted ? TEXT_MUTED : INK }}>
+      <span style={{ fontFamily: FONT_MONO, color: accent ? ACCENT : muted ? TEXT_MUTED : INK }}>
         {value < 0 ? `(${formatDollarCents(Math.abs(value))})` : formatDollarCents(value)}
       </span>
     </div>
