@@ -32,16 +32,14 @@ export interface BenefitsConfig {
   enabled: boolean;
   healthcare: {
     enabled: boolean;
+    participationRate: number;
     medical: {
-      participationRate: number;
       premiums: { individual: number; family: number };
     };
     dental: {
-      participationRate: number;
       premiums: { individual: number; family: number };
     };
     vision: {
-      participationRate: number;
       premiums: { individual: number; family: number };
     };
   };

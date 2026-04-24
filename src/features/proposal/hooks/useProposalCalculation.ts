@@ -42,13 +42,14 @@ export function useProposalCalculation() {
       if (benefits.enabled) {
         if (benefits.healthcare.enabled) {
           const hc = benefits.healthcare;
+          const rate = hc.participationRate / 100;
           const medAvg = (hc.medical.premiums.individual + hc.medical.premiums.family) / 2;
           const denAvg = (hc.dental.premiums.individual + hc.dental.premiums.family) / 2;
           const visAvg = (hc.vision.premiums.individual + hc.vision.premiums.family) / 2;
           healthPremiumAnnual =
-            medAvg * 12 * (hc.medical.participationRate / 100) +
-            denAvg * 12 * (hc.dental.participationRate / 100) +
-            visAvg * 12 * (hc.vision.participationRate / 100);
+            medAvg * 12 * rate +
+            denAvg * 12 * rate +
+            visAvg * 12 * rate;
         }
         if (benefits.retirement.enabled) {
           retirementRate = benefits.retirement.contributionRates[tier.level] ?? 6;
