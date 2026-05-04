@@ -4,8 +4,8 @@ Two proposal-building tools for Section 125 Cafeteria Plan tax savings analysis.
 
 ## Tools
 
-- **Quick Proposal (Fission)** — Broker enters estimated company data manually. Results generate live as inputs change.
-- **Informed Analysis (Fusion)** — Broker uploads a census/payroll file. Column mapping + per-employee calculations produce higher-accuracy proposals.
+- **Quick Proposal** — Broker enters estimated company data manually. Results generate live as inputs change.
+- **Informed Analysis** — Broker uploads a census/payroll file. Column mapping + per-employee calculations produce higher-accuracy proposals.
 
 ## Quick Start
 
@@ -40,8 +40,8 @@ Replace each function body with your real portal API calls. Every other file imp
 src/
 ├── features/
 │   ├── proposal/          # Shared infrastructure (types, engine, hooks, components, store, API)
-│   ├── quick-proposal/    # Fission: manual entry tool
-│   ├── informed-analysis/ # Fusion: file upload tool
+│   ├── quick-proposal/    # Quick Proposal: manual entry tool
+│   ├── informed-analysis/ # Informed Analysis: file upload tool
 │   └── portal-integration/# Resources tab + proposal cards
 ├── config/                # Tax rates, FICA rates, industry presets, language
 ├── design-tokens/         # Theme tokens

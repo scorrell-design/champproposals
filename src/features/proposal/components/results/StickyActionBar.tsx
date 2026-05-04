@@ -6,7 +6,7 @@ interface StickyActionBarProps {
   companyName: string;
   proposalType: 'quick_proposal' | 'informed_analysis';
   onDownloadPDF: () => void;
-  onSaveDraft: () => void;
+  onSaveProposal: () => void;
   onNewProposal: () => void;
   isGeneratingPDF: boolean;
   isSaving: boolean;
@@ -17,7 +17,7 @@ export function StickyActionBar({
   companyName,
   proposalType,
   onDownloadPDF,
-  onSaveDraft,
+  onSaveProposal,
   onNewProposal,
   isGeneratingPDF,
   isSaving,
@@ -62,7 +62,7 @@ export function StickyActionBar({
               Send to Client
             </button>
             <button
-              onClick={onSaveDraft}
+              onClick={onSaveProposal}
               disabled={isSaving}
               className="btn-glass inline-flex items-center gap-2 !py-2 !px-4 text-[13px] disabled:opacity-50"
             >

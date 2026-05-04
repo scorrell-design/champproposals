@@ -1,8 +1,8 @@
 export function DataSourcesSection() {
   return (
-    <div className="glass-secondary">
-      <p className="text-[12px] leading-[1.6] text-text-tertiary">
-        Tax calculations in this proposal are based on 2026 federal and state tax rates and may be subject to change.
+    <div className="glass-secondary text-center">
+      <p className="text-[12px] italic text-text-tertiary">
+        Calculations use 2026 federal tax tables and current state income tax rates.
       </p>
     </div>
   );

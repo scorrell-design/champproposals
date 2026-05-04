@@ -69,7 +69,6 @@ export interface QuickProposalInputs {
   states: StateDistribution[];
   filingStatus: FilingStatusDistribution;
   industry: IndustryPreset | null;
-  tierCount: 2 | 3 | 4 | 5;
   tiers: SalaryTier[];
   benefits: BenefitsConfig;
 }

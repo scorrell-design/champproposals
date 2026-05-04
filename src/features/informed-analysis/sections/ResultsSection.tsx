@@ -5,11 +5,7 @@ import { ProposalHeaderBand } from '@/features/proposal/components/results/Propo
 import { ExecutiveSummary } from '@/features/proposal/components/results/ExecutiveSummary';
 import { PlainLanguageSummary } from '@/features/proposal/components/results/PlainLanguageSummary';
 import { EmployerImpactBreakdown } from '@/features/proposal/components/results/EmployerImpactBreakdown';
-import { SavingsSpectrum } from '@/features/proposal/components/results/SavingsSpectrum';
 import { EmployeeLookup } from '../components/EmployeeLookup';
-import { TierBreakdownTable } from '@/features/proposal/components/results/TierBreakdownTable';
-import { SavingsFlowDiagram } from '@/features/proposal/components/results/SavingsFlowDiagram';
-import { ImplementationTimeline } from '@/features/proposal/components/results/ImplementationTimeline';
 import { FAQAccordion } from '@/features/proposal/components/results/FAQAccordion';
 import { DisclaimerCard } from '@/features/proposal/components/results/DisclaimerCard';
 import { DataSourcesSection } from '@/features/proposal/components/results/DataSourcesSection';
@@ -19,7 +15,7 @@ import { payPeriodsPerYear } from '@/utils/format';
 import type { ProposalResult, PaycheckComparison as PaycheckComparisonType, ParsedEmployeeRow } from '@/features/proposal/types/proposal.types';
 import type { EmployeeResult } from '../engine/mini-analyzer';
 
-const DISCLAIMER_TEXT = 'This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Actual results may vary based on final enrollment, payroll data, and plan configuration.';
+const DISCLAIMER_TEXT = 'This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Calculations apply the full standard FICA rate (6.2% Social Security + 1.45% Medicare) and 2026 federal tax tables. Actual results may vary based on final enrollment, payroll data, and plan configuration.';
 
 interface IAResultsSectionProps {
   result: ProposalResult;
@@ -29,7 +25,7 @@ interface IAResultsSectionProps {
   employees?: ParsedEmployeeRow[];
   employeeResults?: EmployeeResult[];
   onDownloadPDF: () => void;
-  onSaveDraft: () => void;
+  onSaveProposal: () => void;
   onReset: () => void;
   isGeneratingPDF: boolean;
   isSaving: boolean;
@@ -43,7 +39,7 @@ export function IAResultsSection({
   employees = [],
   employeeResults = [],
   onDownloadPDF,
-  onSaveDraft,
+  onSaveProposal,
   onReset,
   isGeneratingPDF,
   isSaving,
@@ -52,20 +48,17 @@ export function IAResultsSection({
   const [toastMessage, setToastMessage] = useState('');
 
   const handleSave = useCallback(() => {
-    onSaveDraft();
+    onSaveProposal();
     const msg = companyName
       ? `Proposal saved to ${companyName}'s portal profile`
       : 'Proposal saved';
     setToastMessage(msg);
     setToastVisible(true);
-  }, [onSaveDraft, companyName]);
+  }, [onSaveProposal, companyName]);
 
   const freq = payrollFrequency as 'weekly' | 'biweekly' | 'semimonthly' | 'monthly';
   const periods = payPeriodsPerYear(freq);
 
-  const avgPreTax = result.tierResults.length > 0
-    ? result.tierResults.reduce((s: number, t) => s + t.avgPreTaxDeduction * t.employeeCount, 0) / result.totalEmployees
-    : 0;
   const usedStateCodes = [...new Set(employees.map((e) => e.stateCode))];
   const midTier = paycheckComparisons.length >= 2 ? paycheckComparisons[Math.floor(paycheckComparisons.length / 2)] : paycheckComparisons[0];
 
@@ -92,16 +85,9 @@ export function IAResultsSection({
         <ExecutiveSummary result={result} payPeriodsPerYear={periods} />
         <PlainLanguageSummary companyName={companyName} result={result} stateCodes={usedStateCodes} />
         <EmployerImpactBreakdown result={result} payPeriodsPerYear={periods} midTier={midTier} />
-        <SavingsSpectrum range={result.savingsRange} proposalType="informed_analysis" />
         {employees.length > 0 && (
           <EmployeeLookup employees={employees} employeeResults={employeeResults} payPeriodsPerYear={periods} />
         )}
-        <TierBreakdownTable tiers={result.tierResults} payPeriodsPerYear={periods} totalEmployees={result.totalEmployees} />
-        <SavingsFlowDiagram
-          totalPreTaxDeductions={Math.round(avgPreTax * result.totalEmployees)}
-          totalFICASavings={Math.round(result.employerAnnualFICASavings)}
-        />
-        <ImplementationTimeline />
         <FAQAccordion />
         <DisclaimerCard />
         <DataSourcesSection />
@@ -111,7 +97,7 @@ export function IAResultsSection({
         companyName={companyName}
         proposalType="informed_analysis"
         onDownloadPDF={onDownloadPDF}
-        onSaveDraft={handleSave}
+        onSaveProposal={handleSave}
         onNewProposal={onReset}
         isGeneratingPDF={isGeneratingPDF}
         isSaving={isSaving}

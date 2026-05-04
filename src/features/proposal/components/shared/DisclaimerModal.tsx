@@ -67,6 +67,9 @@ export function DisclaimerModal({ open, onAccept, onGoBack }: DisclaimerModalPro
                   and does not constitute tax, legal, or financial advice. We recommend
                   consulting with a qualified tax professional before making plan decisions.
                 </p>
+                <p style={{ marginTop: 12 }}>
+                  This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Calculations apply the full standard FICA rate (6.2% Social Security + 1.45% Medicare) and 2026 federal tax tables. Actual results may vary based on final enrollment, payroll data, and plan configuration.
+                </p>
               </div>
 
               <div
@@ -93,7 +96,7 @@ export function DisclaimerModal({ open, onAccept, onGoBack }: DisclaimerModalPro
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                  I Understand — View Proposal
+                  I Understand — Generate Proposal
                 </button>
                 <button
                   onClick={onGoBack}

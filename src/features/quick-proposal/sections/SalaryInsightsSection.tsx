@@ -28,7 +28,7 @@ function build4Tiers(sourceTiers: SalaryTier[], existingTiers: SalaryTier[]): Sa
 }
 
 export function SalaryInsightsSection() {
-  const { industry, tiers, setIndustry, setTierCount, setTiers, updateTier } = useProposalStore((s) => s);
+  const { industry, tiers, setIndustry, setTiers, updateTier } = useProposalStore((s) => s);
   const [presetBanner, setPresetBanner] = useState<string | null>(null);
 
   const handleIndustrySelect = useCallback((preset: IndustryPreset) => {
@@ -37,15 +37,13 @@ export function SalaryInsightsSection() {
       const presetData = INDUSTRY_PRESETS[preset];
       const fourTiers = build4Tiers(presetData.tiers, tiers);
       setTiers(fourTiers);
-      setTierCount(4);
       setPresetBanner(presetData.label);
     } else {
       const emptyTiers = build4Tiers([], tiers);
       setTiers(emptyTiers);
-      setTierCount(4);
       setPresetBanner(null);
     }
-  }, [setIndustry, setTiers, setTierCount, tiers]);
+  }, [setIndustry, setTiers, tiers]);
 
   const totalPercent = tiers.reduce((sum, t) => sum + t.workforcePercent, 0);
 

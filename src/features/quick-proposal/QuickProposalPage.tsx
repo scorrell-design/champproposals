@@ -70,6 +70,13 @@ export function QuickProposalPage({ groupId = 'demo' }: QuickProposalPageProps) 
     setShowDisclaimer(false);
   }, []);
 
+  const handleNewProposal = useCallback(() => {
+    store.resetAll();
+    setShowResults(false);
+    setActiveSection('company');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [store]);
+
   return (
     <GlassBackground>
       <div className="mx-auto max-w-6xl px-4 py-8">
@@ -134,7 +141,7 @@ export function QuickProposalPage({ groupId = 'demo' }: QuickProposalPageProps) 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
               >
-                <ResultsSection groupId={groupId} />
+                <ResultsSection groupId={groupId} onNewProposal={handleNewProposal} />
               </motion.div>
             )}
           </div>

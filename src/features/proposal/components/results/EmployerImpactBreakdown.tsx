@@ -65,7 +65,7 @@ export function EmployerImpactBreakdown({ result, payPeriodsPerYear, midTier }: 
           {midTier ? (
             <>
               <p className="text-[12px] text-text-tertiary" style={{ marginBottom: 12 }}>
-                {midTier.tier} Employee
+                Representative Employee
               </p>
               <div style={{ marginBottom: 8 }}>
                 <p className="text-[12px] text-text-tertiary">Current:</p>
@@ -86,11 +86,11 @@ export function EmployerImpactBreakdown({ result, payPeriodsPerYear, midTier }: 
                 +{formatDollarCents(midTier.annualIncrease)}/year
               </p>
               <p className="mt-2 text-[12px] text-text-tertiary">
-                ${Math.round(midTier.grossPay * payPeriodsPerYear).toLocaleString()} salary · {midTier.tier}
+                ${Math.round(midTier.grossPay * payPeriodsPerYear).toLocaleString()} salary
               </p>
             </>
           ) : (
-            <p className="text-[13px] text-text-tertiary">No tier data available</p>
+            <p className="text-[13px] text-text-tertiary">No employee data available</p>
           )}
         </div>
       </div>

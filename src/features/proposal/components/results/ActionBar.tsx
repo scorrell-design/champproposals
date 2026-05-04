@@ -4,7 +4,7 @@ import { ShareProposalModal } from './ShareProposalModal';
 
 interface ActionBarProps {
   onDownloadPDF: () => void;
-  onSaveDraft: () => void;
+  onSaveProposal: () => void;
   onNewProposal: () => void;
   isGeneratingPDF: boolean;
   isSaving: boolean;
@@ -15,7 +15,7 @@ interface ActionBarProps {
 
 export function ActionBar({
   onDownloadPDF,
-  onSaveDraft,
+  onSaveProposal,
   onNewProposal,
   isGeneratingPDF,
   isSaving,
@@ -53,7 +53,7 @@ export function ActionBar({
         </button>
 
         <button
-          onClick={onSaveDraft}
+          onClick={onSaveProposal}
           disabled={isSaving}
           className="btn-glass inline-flex items-center gap-2 disabled:opacity-50"
         >

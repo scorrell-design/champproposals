@@ -1,7 +1,6 @@
 import { Document, Page, View, Text, StyleSheet, Font } from '@react-pdf/renderer';
-import { PDFSavingsSpectrum } from './PDFSavingsSpectrum';
 import { BRAND } from './brandTokens';
-import type { ProposalResult, SavingsRange } from '../../types/proposal.types';
+import type { ProposalResult } from '../../types/proposal.types';
 import type { EmployeeResult } from '@/features/informed-analysis/engine/mini-analyzer';
 
 Font.register({
@@ -402,8 +401,6 @@ export function InformedAnalysisPDF({ groupName, result, employeeResults, payrol
           </Text>
         </View>
 
-        <PDFSavingsSpectrum range={result.savingsRange} proposalType="informed_analysis" />
-
         <View style={s.divider} />
 
         <Text style={s.sectionTitle}>Employee-Level Breakdown</Text>
@@ -495,7 +492,7 @@ export function InformedAnalysisPDF({ groupName, result, employeeResults, payrol
 
         <Text style={[s.sectionTitle, { marginTop: 20 }]}>Paycheck Comparison — Sample Employees</Text>
         <Text style={s.sectionCaption}>
-          Representative sample of {samples.length} employees across salary tiers showing before/after Section 125 impact.
+          Representative sample of {samples.length} employees showing before/after Section 125 impact.
         </Text>
 
         {samples.map((sample) => (

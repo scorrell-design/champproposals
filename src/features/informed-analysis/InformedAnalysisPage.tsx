@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Zap } from 'lucide-react';
+import { BarChart3, Info, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -25,6 +25,8 @@ const DEFAULT_BENEFITS: BenefitsConfig = {
   retirement: { enabled: false, participationRate: 60, contributionRates: { entry: 4, mid: 6, senior: 8, executive: 10 } },
   hsa: { enabled: false, participationRate: 30, annualContribution: 1500 },
 };
+
+const DISCLAIMER_TEXT = 'This proposal is for illustrative purposes only and does not constitute a guarantee of savings. Calculations apply the full standard FICA rate (6.2% Social Security + 1.45% Medicare) and 2026 federal tax tables. Actual results may vary based on final enrollment, payroll data, and plan configuration.';
 
 function stripBOM(s: string): string {
   return s.replace(/^\uFEFF/, '');
@@ -192,6 +194,7 @@ export function InformedAnalysisPage({ groupId: _groupId = 'demo' }: InformedAna
   const handleReset = useCallback(() => {
     setStep('upload'); setFile(null); setRawData([]); setColumns([]); setResult(null); setEmployees([]); setPaycheckComparisons([]); setEmployeeResults([]); setRecognizedFields([]); setShowDisclaimer(false);
     rawDataRef.current = []; mappingRef.current = mapping;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   return (
@@ -224,6 +227,14 @@ export function InformedAnalysisPage({ groupId: _groupId = 'demo' }: InformedAna
           </div>
         </motion.div>
 
+        <div
+          className="flex items-center gap-2 rounded-lg px-4 py-2.5"
+          style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.15)' }}
+        >
+          <Info size={15} className="flex-shrink-0 text-accent" style={{ opacity: 0.7 }} />
+          <p className="text-[12px] leading-snug text-text-tertiary">{DISCLAIMER_TEXT}</p>
+        </div>
+
         {(step === 'upload' || step === 'mapping') && <FileUploadSection onFileSelected={handleFileSelected} currentFile={file} />}
         {step === 'mapping' && validation && recognizedFields.length > 0 && (
           <RecognizedFieldsView
@@ -234,7 +245,7 @@ export function InformedAnalysisPage({ groupId: _groupId = 'demo' }: InformedAna
         )}
         {step === 'mapping' && validation && <ColumnMappingSection columns={columns} mapping={mapping} validation={validation} onUpdateMapping={handleUpdateMapping} onConfirm={handleConfirmMapping} />}
         {step === 'review' && <ValidationReviewSection employees={employees} />}
-        {step === 'results' && result && <IAResultsSection result={result} paycheckComparisons={paycheckComparisons} companyName={file?.name.replace(/\.[^.]+$/, '') ?? 'Company'} payrollFrequency={payrollFreq} employees={employees} employeeResults={employeeResults} onDownloadPDF={() => downloadInformedPDF({ groupName: file?.name.replace(/\.[^.]+$/, '') ?? 'Company', result, employeeResults, payrollFrequency: payrollFreq })} onSaveDraft={() => {}} onReset={handleReset} isGeneratingPDF={isGeneratingPDF} isSaving={false} />}
+        {step === 'results' && result && <IAResultsSection result={result} paycheckComparisons={paycheckComparisons} companyName={file?.name.replace(/\.[^.]+$/, '') ?? 'Company'} payrollFrequency={payrollFreq} employees={employees} employeeResults={employeeResults} onDownloadPDF={() => downloadInformedPDF({ groupName: file?.name.replace(/\.[^.]+$/, '') ?? 'Company', result, employeeResults, payrollFrequency: payrollFreq })} onSaveProposal={() => {}} onReset={handleReset} isGeneratingPDF={isGeneratingPDF} isSaving={false} />}
       </div>
       <DisclaimerModal
         open={showDisclaimer}

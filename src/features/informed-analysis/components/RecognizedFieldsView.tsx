@@ -9,10 +9,19 @@ interface RecognizedFieldsViewProps {
   companyName?: string;
 }
 
-const VISIBLE_THRESHOLD = 7;
+const GROUP_META: { key: RecognizedField['group']; label: string; collapsible: boolean }[] = [
+  { key: 'employee_pay', label: 'Employee & Pay', collapsible: false },
+  { key: 'tax_filing', label: 'Tax Filing', collapsible: true },
+  { key: 'benefits', label: 'Benefits', collapsible: true },
+  { key: 'state_specific', label: 'State-Specific', collapsible: true },
+];
 
 export function RecognizedFieldsView({ recognizedFields, rowCount, fileName, companyName }: RecognizedFieldsViewProps) {
-  const [showAll, setShowAll] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
+    tax_filing: false,
+    benefits: false,
+    state_specific: false,
+  });
 
   const detectedFields = recognizedFields.filter((f) => f.status === 'detected');
   const hasRequiredMissing = recognizedFields.some((f) => f.required && f.status === 'not_detected');
@@ -20,8 +29,18 @@ export function RecognizedFieldsView({ recognizedFields, rowCount, fileName, com
   const fileExt = fileName.split('.').pop()?.toLowerCase();
   const fileType = fileExt === 'csv' ? 'CSV' : fileExt === 'xlsx' || fileExt === 'xls' ? 'Excel Census' : 'Data File';
 
-  const visibleFields = showAll ? recognizedFields : recognizedFields.slice(0, VISIBLE_THRESHOLD);
-  const hasMore = recognizedFields.length > VISIBLE_THRESHOLD;
+  const grouped = GROUP_META.map((g) => ({
+    ...g,
+    fields: recognizedFields.filter((f) => f.group === g.key),
+  }));
+
+  const stateSpecificGroup = grouped.find((g) => g.key === 'state_specific');
+  const hideStateSpecific =
+    stateSpecificGroup != null && stateSpecificGroup.fields.every((f) => f.status === 'not_detected');
+
+  const toggleGroup = (key: string) => {
+    setExpandedGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
     <div className="glass-primary">
@@ -34,23 +53,45 @@ export function RecognizedFieldsView({ recognizedFields, rowCount, fileName, com
           >
             Recognized Fields
           </p>
-          <div className="mt-4 flex flex-col" style={{ gap: 12 }}>
-            {visibleFields.map((field) => (
-              <FieldRow key={field.key} field={field} />
-            ))}
+          <div className="mt-4 flex flex-col" style={{ gap: 20 }}>
+            {grouped.map((group) => {
+              if (group.key === 'state_specific' && hideStateSpecific) return null;
+
+              const isExpanded = !group.collapsible || expandedGroups[group.key];
+              const detectedCount = group.fields.filter((f) => f.status === 'detected').length;
+
+              return (
+                <div key={group.key}>
+                  {group.collapsible ? (
+                    <button
+                      onClick={() => toggleGroup(group.key)}
+                      className="flex w-full items-center gap-1.5 text-[13px] font-semibold text-text-secondary hover:text-text-primary transition-colors"
+                    >
+                      {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                      {group.label}
+                      <span className="text-[11px] font-normal text-text-tertiary">
+                        ({detectedCount}/{group.fields.length})
+                      </span>
+                    </button>
+                  ) : (
+                    <p className="text-[13px] font-semibold text-text-secondary">
+                      {group.label}
+                      <span className="ml-1.5 text-[11px] font-normal text-text-tertiary">
+                        ({detectedCount}/{group.fields.length})
+                      </span>
+                    </p>
+                  )}
+                  {isExpanded && (
+                    <div className="mt-2 flex flex-col" style={{ gap: 10 }}>
+                      {group.fields.map((field) => (
+                        <FieldRow key={field.key} field={field} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-          {hasMore && (
-            <button
-              onClick={() => setShowAll(!showAll)}
-              className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-accent hover:text-accent-muted transition-colors"
-            >
-              {showAll ? (
-                <>Hide <ChevronUp size={14} /></>
-              ) : (
-                <>Show all ({recognizedFields.length}) <ChevronDown size={14} /></>
-              )}
-            </button>
-          )}
         </div>
 
         {/* Right: Group Summary */}

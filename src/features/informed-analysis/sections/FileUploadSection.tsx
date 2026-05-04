@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, FileSpreadsheet } from 'lucide-react';
+import { Upload, FileSpreadsheet, Download } from 'lucide-react';
 import { SectionCard } from '@/features/proposal/components/shared/SectionCard';
 
 interface FileUploadSectionProps {
@@ -42,14 +42,37 @@ export function FileUploadSection({ onFileSelected, currentFile }: FileUploadSec
           </>
         ) : (
           <>
-            <Upload className="h-10 w-10 text-text-tertiary mb-3" />
+            <Upload className="h-8 w-8 text-text-tertiary mb-3" />
             <p className="text-[14px] font-semibold text-text-primary">
-              {isDragActive ? 'Drop your file here' : 'Drag & drop your census file'}
+              {isDragActive ? 'Drop your file here' : 'Drag & drop your census file here'}
             </p>
             <p className="text-[13px] text-text-tertiary mt-1">or click to browse — CSV, XLS, XLSX</p>
           </>
         )}
       </div>
+
+      {/* Download links */}
+      <div className="flex items-center gap-6 mt-4">
+        <a
+          href="/sample_payroll_census.csv"
+          download="proposal_upload_template.csv"
+          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent hover:text-accent-muted transition-colors"
+        >
+          <Download size={16} />
+          Download Template
+        </a>
+        <a
+          href="/sample_payroll_census.csv"
+          download="proposal_upload_sample_160employees.csv"
+          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent hover:text-accent-muted transition-colors"
+        >
+          <Download size={16} />
+          Download Sample with Data
+        </a>
+      </div>
+      <p className="mt-2 text-[11px] text-text-tertiary">
+        Template has 35 canonical columns. Sample contains 160 hypothetical employees for demos and testing.
+      </p>
     </SectionCard>
   );
 }

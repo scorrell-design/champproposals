@@ -36,7 +36,6 @@ export interface ProposalState {
   states: StateDistribution[];
   filingStatus: FilingStatusDistribution;
   industry: IndustryPreset | null;
-  tierCount: 2 | 3 | 4 | 5;
   tiers: SalaryTier[];
   benefits: BenefitsConfig;
   result: ProposalResult | null;
@@ -46,7 +45,6 @@ export interface ProposalState {
   setStates: (states: StateDistribution[]) => void;
   setFilingStatus: (fs: FilingStatusDistribution) => void;
   setIndustry: (preset: IndustryPreset) => void;
-  setTierCount: (count: 2 | 3 | 4 | 5) => void;
   setTiers: (tiers: SalaryTier[]) => void;
   updateTier: (index: number, tier: Partial<SalaryTier>) => void;
   setBenefits: (benefits: Partial<BenefitsConfig>) => void;
@@ -66,7 +64,6 @@ export const useProposalStore = create<ProposalState>((set) => ({
   states: [],
   filingStatus: DEFAULT_FILING_STATUS,
   industry: null,
-  tierCount: 4,
   tiers: [],
   benefits: DEFAULT_BENEFITS,
   result: null,
@@ -80,8 +77,6 @@ export const useProposalStore = create<ProposalState>((set) => ({
   setFilingStatus: (filingStatus) => set({ filingStatus }),
 
   setIndustry: (preset) => set({ industry: preset }),
-
-  setTierCount: (tierCount) => set({ tierCount }),
 
   setTiers: (tiers) => set({ tiers }),
 
@@ -105,7 +100,6 @@ export const useProposalStore = create<ProposalState>((set) => ({
       states: [],
       filingStatus: DEFAULT_FILING_STATUS,
       industry: null,
-      tierCount: 4,
       tiers: [],
       benefits: DEFAULT_BENEFITS,
       result: null,

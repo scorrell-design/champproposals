@@ -1,5 +1,4 @@
 import { Document, Page, View, Text, StyleSheet, Font } from '@react-pdf/renderer';
-import { PDFSavingsSpectrum } from './PDFSavingsSpectrum';
 import type { CompanyInfo, ProposalResult } from '../../types/proposal.types';
 
 Font.register({
@@ -17,9 +16,7 @@ const BLUE_BRIGHT = '#3B82F6';
 const BLUE_SOFT = '#EFF6FF';
 const INK = '#0F0B2E';
 const MUTED = '#4A4560';
-const TERTIARY = '#8A85A0';
 const BORDER = 'rgba(15, 11, 46, 0.08)';
-const LIGHT = '#F7F8FC';
 const WHITE = '#FFFFFF';
 
 const s = StyleSheet.create({
@@ -136,53 +133,6 @@ const s = StyleSheet.create({
     color: MUTED,
     marginTop: 2,
   },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: 700,
-    color: BLUE,
-    marginBottom: 4,
-  },
-  tierHeader: {
-    flexDirection: 'row',
-    backgroundColor: BLUE_SOFT,
-    padding: 8,
-    borderRadius: 4,
-  },
-  tierHeaderCell: {
-    flex: 1,
-    fontSize: 8,
-    fontWeight: 500,
-    color: BLUE,
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
-  },
-  tierRow: {
-    flexDirection: 'row',
-    padding: 8,
-    borderBottom: `0.5 solid ${BORDER}`,
-  },
-  tierRowAlt: {
-    flexDirection: 'row',
-    padding: 8,
-    borderBottom: `0.5 solid ${BORDER}`,
-    backgroundColor: LIGHT,
-  },
-  tierCell: {
-    flex: 1,
-    fontSize: 10,
-    color: INK,
-  },
-  tierCellAccent: {
-    flex: 1,
-    fontSize: 10,
-    fontWeight: 600,
-    color: BLUE_BRIGHT,
-  },
-  tierMethodology: {
-    fontSize: 8,
-    color: MUTED,
-    marginTop: 6,
-  },
   preparedBy: {
     marginTop: 16,
     paddingTop: 10,
@@ -255,7 +205,7 @@ interface ProposalPDFProps {
   brokerEmail?: string;
 }
 
-export function ProposalPDF({ company, result, proposalType, brokerName, brokerEmail }: ProposalPDFProps) {
+export function ProposalPDF({ company, result, proposalType: _proposalType, brokerName, brokerEmail }: ProposalPDFProps) {
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const currentTaxYear = new Date().getFullYear();
   const qualifiedPct = result.totalEmployees > 0 ? Math.round((result.qualifiedEmployees / result.totalEmployees) * 100) : 0;
@@ -312,34 +262,7 @@ export function ProposalPDF({ company, result, proposalType, brokerName, brokerE
           </View>
         </View>
 
-        {/* Savings Outlook */}
-        <PDFSavingsSpectrum range={result.savingsRange} proposalType={proposalType} />
-
         <View style={s.divider} />
-
-        {/* Tier Breakdown */}
-        <Text style={s.sectionTitle}>Tier Breakdown</Text>
-        <Text style={{ fontSize: 9, color: MUTED, marginBottom: 8 }}>Estimates based on provided data</Text>
-        <View style={s.tierHeader}>
-          <Text style={s.tierHeaderCell}>Tier</Text>
-          <Text style={[s.tierHeaderCell, { textAlign: 'right' }]}># Employees (%)</Text>
-          <Text style={[s.tierHeaderCell, { textAlign: 'right' }]}>Avg. Salary</Text>
-          <Text style={[s.tierHeaderCell, { textAlign: 'right' }]}>FICA Savings/EE</Text>
-        </View>
-        {result.tierResults.map((tier, i) => {
-          const pct = result.totalEmployees > 0 ? Math.round((tier.employeeCount / result.totalEmployees) * 100) : 0;
-          return (
-            <View key={tier.tier} style={i % 2 === 1 ? s.tierRowAlt : s.tierRow}>
-              <Text style={[s.tierCell, { fontWeight: 600 }]}>{tier.tier}</Text>
-              <Text style={[s.tierCell, { textAlign: 'right' }]}>{tier.employeeCount} ({pct}%)</Text>
-              <Text style={[s.tierCell, { textAlign: 'right' }]}>{fmt(tier.avgSalary)}</Text>
-              <Text style={[s.tierCellAccent, { textAlign: 'right' }]}>{fmt(tier.ficaSavingsPerEmployee)}</Text>
-            </View>
-          );
-        })}
-        <Text style={s.tierMethodology}>
-          Tier FICA savings assume average pre-tax contributions consistent with typical Section 125 plan participation.
-        </Text>
 
         {/* Prepared By */}
         {brokerName && (

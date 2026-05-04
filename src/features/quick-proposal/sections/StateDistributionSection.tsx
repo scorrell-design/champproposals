@@ -83,23 +83,23 @@ export function StateDistributionSection() {
         </button>
         <button
           onClick={distributeEvenly}
-          disabled={states.length === 0}
+          disabled={states.length < 2}
+          title={states.length < 2 ? 'Add 2 or more states to distribute evenly.' : undefined}
           className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-text-secondary hover:text-text-primary transition-colors disabled:opacity-40 disabled:pointer-events-none"
           style={{ background: '#F7F8FC', border: '1px solid rgba(15, 11, 46, 0.08)' }}
         >
           <RefreshCw size={13} />
           Distribute Evenly
         </button>
-        {states.length > 0 && (
-          <button
-            onClick={clearAll}
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-text-tertiary hover:text-error transition-colors"
-            style={{ background: '#F7F8FC', border: '1px solid rgba(15, 11, 46, 0.08)' }}
-          >
-            <Trash2 size={13} />
-            Clear All
-          </button>
-        )}
+        <button
+          onClick={clearAll}
+          disabled={states.length === 0}
+          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-text-tertiary hover:text-error transition-colors disabled:opacity-40 disabled:pointer-events-none"
+          style={{ background: '#F7F8FC', border: '1px solid rgba(15, 11, 46, 0.08)' }}
+        >
+          <Trash2 size={13} />
+          Clear All
+        </button>
       </div>
 
       {states.length > 0 && (

@@ -34,7 +34,6 @@ export function useProposalPersistence(groupId: string) {
           states: state.states,
           filingStatus: state.filingStatus,
           industry: state.industry,
-          tierCount: state.tierCount,
           tiers: state.tiers,
           benefits: state.benefits,
         },

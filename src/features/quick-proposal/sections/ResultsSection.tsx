@@ -13,7 +13,7 @@ import { usePDFGeneration } from '@/features/proposal/hooks/usePDFGeneration';
 import { formatDollar, formatDollarCents, payPeriodsPerYear } from '@/utils/format';
 import { getFederalMarginalRate } from '@/features/proposal/engine';
 import { STATE_TAX_RATES } from '@/config/tax-rates';
-import { FICA_RATES, ADMIN_FEE_ANNUAL } from '@/config/fica-rates';
+import { FICA_RATES } from '@/config/fica-rates';
 import type { TierResult } from '@/features/proposal/types/proposal.types';
 import champLogo from '@/assets/champ-logo.png';
 
@@ -83,6 +83,7 @@ const FAQ_ITEMS = [
 
 interface ResultsSectionProps {
   groupId: string;
+  onNewProposal?: () => void;
 }
 
 interface TierPaycheckProfile {
@@ -108,7 +109,7 @@ interface TierPaycheckProfile {
   totalTaxSavings: number;
 }
 
-export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
+export function ResultsSection({ groupId: _groupId, onNewProposal }: ResultsSectionProps) {
   const { result, isCalculating, company, states, filingStatus, tiers } = useProposalStore((s) => s);
   const { downloadPDF, isGenerating } = usePDFGeneration();
 
@@ -153,8 +154,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
       const fedAfter = taxableAfter * federalRate;
       const stateAfter = taxableAfter * weightedStateRate;
       const ficaAfter = taxableAfter * ficaRate;
-      const adminPerPay = ADMIN_FEE_ANNUAL / periods;
-      const champBenefit = preTaxPerPay - adminPerPay;
+      const champBenefit = preTaxPerPay;
       const netAfter = grossPay - preTaxPerPay - fedAfter - stateAfter - ficaAfter;
 
       const delta = netAfter - netBefore;
@@ -303,7 +303,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: 48, alignItems: 'stretch' }}>
           <KPICard
             label="Anticipated Employee Participation Rate"
-            value={`${participationRate}%`}
+            value={`${result.positivelyImpactedCount} employees (${participationRate}%)`}
             caption="estimated voluntary participation among eligible employees"
           />
           <KPICard
@@ -413,8 +413,8 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
                     <h3 style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em', color: INK, textAlign: 'center' }}>Employee Eligibility</h3>
                     <div style={{ width: 60, height: 2, background: ACCENT, margin: '8px auto 20px' }} />
                     <StatRow label="Total Eligible Employees" value={String(result.totalEmployees)} />
-                    <StatRow label="Eligible Employees" value={String(result.qualifiedEmployees)} />
-                    <StatRow label="Employees with positive net take-home pay" value={String(result.positivelyImpactedCount)} />
+                    <StatRow label="Eligible Employees" value={`${result.qualifiedEmployees} (${Math.round((result.qualifiedEmployees / result.totalEmployees) * 100)}%)`} />
+                    <StatRow label="Employees with positive net take-home pay" value={`${result.positivelyImpactedCount} (${result.positivelyImpactedPercent}%)`} />
                     <StatRow label="Participation rate of eligible employees" value={`${participationRate}%`} />
                   </div>
 
@@ -422,7 +422,7 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
                   <div style={{ background: '#F7F8FC', border: CARD_BORDER, borderRadius: 16, padding: 24 }}>
                     <h3 style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em', color: INK, textAlign: 'center' }}>Financial Impact</h3>
                     <div style={{ width: 60, height: 2, background: ACCENT, margin: '8px auto 20px' }} />
-                    <StatRow label="Employer Annual Savings (Net of Fees):" value={formatDollar(result.netAnnualBenefit)} />
+                    <StatRow label="Employer Annual Savings:" value={formatDollar(result.netAnnualBenefit)} />
                     <StatRow label="Monthly Per Employee:" value={formatDollar(Math.round(result.netAnnualBenefit / result.totalEmployees / 12))} />
                   </div>
                 </div>
@@ -574,8 +574,8 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
           </p>
         </WhiteCard>
 
-        {/* B12 — Download Button */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
+        {/* B12 — Action Buttons */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 40, flexWrap: 'wrap' }}>
           <button
             onClick={handleDownloadPDF}
             disabled={isGenerating}
@@ -600,6 +600,26 @@ export function ResultsSection({ groupId: _groupId }: ResultsSectionProps) {
             <Download size={18} />
             {isGenerating ? 'Generating...' : 'Download Full Proposal'}
           </button>
+          {onNewProposal && (
+            <button
+              onClick={onNewProposal}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                background: 'transparent',
+                color: TEXT_MUTED,
+                fontWeight: 600,
+                fontSize: 14,
+                padding: '14px 24px',
+                borderRadius: PILL,
+                border: `1px solid rgba(15, 11, 46, 0.14)`,
+                cursor: 'pointer',
+              }}
+            >
+              New Proposal
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -788,7 +808,7 @@ function PaycheckTab({ profile, positive, periods }: { profile: TierPaycheckProf
             <p style={{ fontSize: 12, color: TEXT_MUTED }}>Total Tax Savings</p>
           </div>
           <div>
-            <p style={{ fontWeight: 700, fontSize: 22, color: ACCENT, fontFamily: FONT_MONO }}>
+            <p style={{ fontWeight: 700, fontSize: 22, color: deltaColor, fontFamily: FONT_MONO }}>
               {sign}{Math.abs(increasePct).toFixed(1)}%
             </p>
             <p style={{ fontSize: 12, color: TEXT_MUTED }}>Increase Percentage</p>

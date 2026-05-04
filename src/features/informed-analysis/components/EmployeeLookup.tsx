@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Info } from 'lucide-react';
 import { formatDollar, formatDollarCents } from '@/utils/format';
 import { getFederalMarginalRate, estimatePreTaxDeductions } from '@/features/proposal/engine';
 import { STATE_TAX_RATES, STATE_NAMES } from '@/config/tax-rates';
@@ -73,7 +73,15 @@ export function EmployeeLookup({ employees, employeeResults, payPeriodsPerYear }
 
   return (
     <div className="glass-primary">
-      <h3 className="text-[18px] font-semibold text-text-primary">Individual Employee Impact</h3>
+      <div className="flex items-center gap-2">
+        <h3 className="text-[18px] font-semibold text-text-primary">Individual Employee Impact</h3>
+        <span className="relative group">
+          <Info size={16} className="text-text-tertiary cursor-help" />
+          <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50 hidden group-hover:block w-64 rounded-lg bg-white px-3 py-2 text-[12px] text-text-secondary shadow-lg" style={{ border: '1px solid rgba(15, 11, 46, 0.08)' }}>
+            These calculations use the actual salary, filing status, and state data from your file.
+          </span>
+        </span>
+      </div>
       <p className="mt-1 text-[14px] text-text-secondary" style={{ marginBottom: 16 }}>
         Select an employee to view their specific paycheck impact
       </p>
